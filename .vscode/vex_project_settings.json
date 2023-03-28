@@ -1,0 +1,18 @@
+{
+	"extension": {
+		"version": "0.3.0",
+		"json": 1
+	},
+	"project": {
+		"name": "WDR-Spin-Up",
+		"description": "",
+		"creationDate": "2/4/2023, 10:46:37 AM",
+		"platform": "V5",
+		"language": "cpp",
+		"slot": 2,
+		"sdkVersion": "V5_20220726_10_00_00",
+		"cpp": {
+			"includePath": []
+		}
+	}
+}
