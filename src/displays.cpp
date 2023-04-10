@@ -3,23 +3,55 @@
 
 using namespace vex;
 
+/**
+ * @brief Thread that controls which screen page is displayed on V5 Brain
+ *
+ */
 int displayThread() {
   this_thread::setPriority(thread::threadPrioritylow);
+
+  V5_TouchStatus status;
+  vexTouchDataGet(&status);
+  int32_t last_press_count = status.pressCount;
+  uint8_t page_number = 1;
   while (1) {
-    displayScreen_competition();
+    vexTouchDataGet(&status);
+    if ((status.lastEvent == kTouchEventPress)
+    && (last_press_count) != status.pressCount) {
+      page_number++;
+      if (page_number > 3)  page_number = 1;
+    }
+    last_press_count = status.pressCount;
+
+    switch (page_number) {
+      case 1:
+      displayScreen_competition();
+      break;
+
+      case 2:
+      displayScreen_currentLimit();
+      break;
+
+      default:
+      // vexDisplayString(1, "Page %d doesn't exist", page_number);
+      page_number = 1;
+    }
 
     // Display update (double buffered)
     vexDisplayRender(true, true);   // Render back buffer to screen
     vexDisplayErase();              // Clear the new back buffer
 
-    // Yield for a long time. 
-    // TODO: Reduce priority of this thread too.
+    // Yield for a long time
     this_thread::sleep_for(100);
   }
 
   return 0;
 }
 
+/**
+ * @brief Display competition relevant info
+ * 
+ */
 void displayScreen_competition() {
   // First line: Competition status
   switch (wdrGetCompStatus()) {
@@ -78,4 +110,12 @@ void displayScreen_competition() {
   vexDisplayString(11, "Turret value: %d", turretGetRawReading());
 
   // vexDisplayString(12, "Auto select: %d", miscGetAutoSelect());
+}
+
+/**
+ * @brief Display V5 Smart motor current limit information.
+ * 
+ */
+void displayScreen_currentLimit() {
+  vexDisplayString(0, "Motor current limits");
 }
