@@ -19,7 +19,7 @@ int displayThread() {
     if ((status.lastEvent == kTouchEventPress)
     && (last_press_count) != status.pressCount) {
       page_number++;
-      if (page_number > 3)  page_number = 1;
+      if (page_number > 2)  page_number = 1;
     }
     last_press_count = status.pressCount;
 
@@ -53,6 +53,8 @@ int displayThread() {
  * 
  */
 void displayScreen_competition() {
+  vexDisplayForegroundColor(ClrWhite);
+
   // First line: Competition status
   switch (wdrGetCompStatus()) {
     case Disabled:
@@ -113,9 +115,37 @@ void displayScreen_competition() {
 }
 
 /**
- * @brief Display V5 Smart motor current limit information.
+ * @brief Display V5 Smart motor current limit information for all 20 ports.
  * 
+ * Line will turn red if current limit flag is on.
  */
 void displayScreen_currentLimit() {
-  vexDisplayString(0, "Motor current limits");
+  vexDisplayString(0, "Motor current limits: [index] limit, actual");
+  for (uint32_t i = 0; i < 20; i++) {
+    // Get motor info
+    int32_t motor_current = vexMotorCurrentGet(i);
+    int32_t motor_current_limit = vexMotorCurrentLimitGet(i);
+    bool flag_current_limit = vexMotorCurrentLimitFlagGet(i);
+
+    // Display motor info
+    int xpos, ypos;
+    if (i < 10) {
+      // Left column
+      xpos = 0;
+      ypos = i*20+30;
+    } else {
+      // Right column
+      xpos = 250;
+      ypos = (i-10)*20+30;
+    }
+
+    // Turn line red if current limit flag is on
+    if (flag_current_limit) {
+      vexDisplayForegroundColor(ClrRed);
+    } else {
+      vexDisplayForegroundColor(ClrWhite);
+    }
+      
+    vexDisplayStringAt(xpos, ypos, "[%d] %d, %d", i, motor_current_limit, motor_current);
+  }
 }
