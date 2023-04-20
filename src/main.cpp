@@ -13,9 +13,6 @@
 
 using namespace vex;
 
-// Global instances of VEX objects?
-vex::brain Brain;
-
 int commsThread() {
   this_thread::setPriority(thread::threadPriorityNormal);
   while (1) {
