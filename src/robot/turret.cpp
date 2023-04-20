@@ -48,6 +48,8 @@ void turretInit(void) {
 }
 
 void turretPeriodic() {
+  /* PID angle control */
+
   int32_t turret_pwm;
   controlPID_calculation(&turret_pid, turretGetAngle());
   turret_pwm = turret_pid.output_pwm;
@@ -71,6 +73,18 @@ void turretPeriodic() {
   }
 
   turretSpinPWM(turret_pwm);
+
+  /* Current limiting */
+
+  // Current budget shared between turret and rollers
+  // When brake is applied, set turrent current limit low.
+  if (turret_is_settled) {
+    vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 100);
+    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 1000);
+  } else {
+    vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 1000);
+    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 100);
+  }
 }
 
 void turretDisable() {
