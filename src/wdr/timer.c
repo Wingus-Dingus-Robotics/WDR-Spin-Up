@@ -67,3 +67,37 @@ void wdrTimerReset(wdr_timer_t *timer)
 {
   wdrTimerInit(timer);
 }
+
+
+
+void wdrHighResTimerInit(wdr_highres_timer_t *timer) {
+  timer->prev_time_us = vexSystemHighResTimeGet();
+  timer->elapsed_time_us = 0;
+  timer->pause = true;
+}
+
+uint64_t wdrHighResTimerGetTime(wdr_highres_timer_t *timer) {
+  if (!timer->pause) {
+    uint64_t current_time = vexSystemHighResTimeGet();
+    timer->elapsed_time_us += current_time - timer->prev_time_us;
+    timer->prev_time_us = current_time;
+  }
+  
+  return timer->elapsed_time_us;
+}
+
+void wdrHighResTimerStart(wdr_highres_timer_t *timer) {
+  if (timer->pause) {
+    // Update prev_time now that timer is unpaused
+    timer->prev_time_us = vexSystemHighResTimeGet();
+    timer->pause = false;
+  }
+}
+
+void wdrHighResTimerPause(wdr_highres_timer_t *timer) {
+  timer->pause = true;
+}
+
+void wdrHighResTimerReset(wdr_highres_timer_t *timer) {
+  wdrHighResTimerInit(timer);
+}

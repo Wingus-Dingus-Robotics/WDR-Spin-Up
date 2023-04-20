@@ -48,6 +48,11 @@ int displayThread() {
   return 0;
 }
 
+
+//
+// Screens
+//
+
 /**
  * @brief Display competition relevant info
  * 
@@ -148,4 +153,21 @@ void displayScreen_currentLimit() {
       
     vexDisplayStringAt(xpos, ypos, "[%d] %d, %d", i, motor_current_limit, motor_current);
   }
+}
+
+/**
+ * @brief Display timing info for various threads
+ * 
+ */
+void displayScreen_timing() {
+  vexDisplayString(0, "Main loop timing [us]");
+  
+  // Main superloop thread
+  vexDisplayString(1, "Execution: %d", main_execution_time_us);
+  vexDisplayString(2, "Yield: %d", main_yield_time_us);
+  vexDisplayString(3, "Total: %d", main_execution_time_us + main_yield_time_us);
+
+  // Display thread
+
+  // Controls?
 }

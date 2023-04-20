@@ -11,7 +11,14 @@
 #include "auto.h"
 #include "displays.h"
 
+#include <array>
+#include <algorithm>
+// #include <queue> // I want a static queue (FIFO). Look into Embedded Template Library in future?
+
 using namespace vex;
+
+// Main loop timing globals
+uint64_t main_execution_time_us, main_yield_time_us;
 
 int commsThread() {
   this_thread::setPriority(thread::threadPriorityNormal);
@@ -41,7 +48,18 @@ int main() {
   thread threadDisplay = thread(displayThread);
   threadDisplay.detach();
 
+  // Loop timing
+  wdr_highres_timer_t main_loop_timer;
+  uint64_t t_execution_us, t_yield_us;
+  uint8_t loop_counter = 0;
+  std::array<uint64_t, 10> array_t_execution, array_t_yield;
+  array_t_execution.fill(0);
+  array_t_yield.fill(0);
+
   while (1) {
+    wdrHighResTimerReset(&main_loop_timer);
+    wdrHighResTimerStart(&main_loop_timer);
+
     // Run correct competition mode
     wdrUpdateCompStatus();
     switch (wdrGetCompStatus()) {
@@ -70,7 +88,27 @@ int main() {
         break;
     }
 
-    // Yield for other threads
-    this_thread::sleep_for(1);
+    // Yield and timing
+    t_execution_us = wdrHighResTimerGetTime(&main_loop_timer);
+    this_thread::sleep_for(1);  // Yield for other threads
+    t_yield_us = wdrHighResTimerGetTime(&main_loop_timer) - t_execution_us;
+
+    // Calculations for average loop timing
+    if (loop_counter < 10) {
+      array_t_execution[loop_counter] = t_execution_us;
+      array_t_yield[loop_counter] = t_yield_us;
+      loop_counter++;
+    } else {
+      loop_counter = 0;
+
+      uint64_t sum_exec = 0;
+      uint64_t sum_yield = 0;
+      for (uint8_t i = 0; i < array_t_execution.size(); i++) {
+        sum_exec += array_t_execution[i];
+        sum_yield += array_t_yield[i];
+      }
+      main_execution_time_us = sum_exec / array_t_execution.size();
+      main_yield_time_us = sum_yield / array_t_yield.size();
+    }
   }
 }
