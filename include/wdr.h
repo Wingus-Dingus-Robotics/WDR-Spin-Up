@@ -59,7 +59,7 @@
 extern sbf_data_t sbf_data; // Data received from SBF coprocessor
 extern Pose2D_t global_pose;  // Global pose of robot on field
 extern double launcher_avg_RPM_L, launcher_avg_RPM_R;
-extern bool misc_jumper_id;
+extern bool misc_jumper_id;       // Robot ID jumper, misc.cpp
 extern uint64_t main_execution_time_us, main_yield_time_us;   // Timing, main.cpp
 
 /*
@@ -72,19 +72,25 @@ extern uint64_t main_execution_time_us, main_yield_time_us;   // Timing, main.cp
 #define PORT_SBF_TX   15  // V5 to SBF UART Tx (out), LiDAR power
 #define PORT_SBF_RX   16  // SBF to V5 UART Rx (in), SBF power
 
+// Debug serial
+#define PORT_DEBUG    6   // Serial debug out
+
 // 3-wire ports
 #define PORT_ADI          22  // V5 Brain 3-wire ADI
 #define PORT_ADIX_LOWER   10  // 3-wire expander
+#define PORT_ADIX_UPPER   3   // 3-wire expander on turret
 
-#define ADI_LAUNCH_FLICK  1   // Pneumatic solenoid
-#define ADI_END_GAME    2   // Pneumatic solenoid
-#define ADI_JUMPER_ID   3   // Jumper
+#define ADI_LIFT_PISTON 1   // ?
+#define ADI_PRESSURE    2   // Pressure sensor
+#define ADI_INTAKE_DISC_STAGE_2 3 //?
+
 #define ADI_AUTO_SELECT 4   // Potentiometer
 #define ADI_TURRET_POS  5   // Potentiometer
 #define ADI_DISC_3      6   // Line tracker
 #define ADI_DISC_2      7   // Line tracker
 #define ADI_DISC_1      8   // Line tracker
 
+//TODO: Document lower adix ports
 #define ADIX_LOWER_INTAKE_MATCH_LOAD  1 // Pneumatic solenoid
 #define ADIX_LOWER_INTAKE_FLAP_R  2 // Pneumatic solenoid
 #define ADIX_LOWER_INTAKE_DEPLOY  3 // Pneumatic solenoid
@@ -92,11 +98,17 @@ extern uint64_t main_execution_time_us, main_yield_time_us;   // Timing, main.cp
 #define ADIX_LOWER_INTAKE_LIFTER  5 // Pneumatic solenoid, lifts discs into turret
 #define ADIX_LOWER_TURRET_BRAKE   6 // Pneumatic solenoid
 
+#define ADIX_LOWER_JUMPER_ID    7 //TODO: Define where this should actually go
+
+#define ADIX_UPPER_LAUNCH_FLICK     1   // Pneumatic solenoid, flick disc into launcher
+#define ADIX_UPPER_STRING_1         2   // Pneumatic solenoid
+#define ADIX_UPPER_STRING_2         3   // Pneumatic solenoid
+#define ADIX_UPPER_ROLLER_ROTATION  4   // Roller rotation sensor
 
 // Motors
 #define PORT_LAUNCHER_L 1
 #define PORT_LAUNCHER_R 2
-#define PORT_ROLLER     3
+#define PORT_ROLLER     5
 #define PORT_INTAKE_L   7
 #define PORT_INTAKE_R   8
 #define PORT_TURRET     9
