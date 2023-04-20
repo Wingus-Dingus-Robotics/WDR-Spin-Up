@@ -61,7 +61,7 @@ void launcherInit() {
 }
 
 void launcherPeriodic() {
-  // Speed controller
+  // Speed controller, with current limiting
   int32_t pwm_left, pwm_right;
   launcherUpdateAvgSpeed();
   controlPID_calculation(&speed_pid_L, launcher_avg_RPM_L);
@@ -69,14 +69,30 @@ void launcherPeriodic() {
 
   if (speed_pid_L.target_value == 0) {
     pwm_left = 0;
+    vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_L ), 100);
   } else {
     pwm_left = speed_pid_L.output_pwm;
+    if (abs(speed_pid_L.error) < 100) {
+      // Maintain speed
+      vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_L ), 1000);
+    } else {
+      // Accelerate with full throttle
+      vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_L ), 2500);
+    }
   }
 
   if (speed_pid_R.target_value == 0) {
     pwm_right = 0;
+    vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_R ), 100);
   } else {
     pwm_right = speed_pid_R.output_pwm;
+    if (abs(speed_pid_R.error) < 100) {
+      // Maintain speed
+      vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_R ), 1000);
+    } else {
+      // Accelerate with full throttle
+      vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_R ), 2500);
+    }
   }
 
   if (launcher_ramp_flag) {

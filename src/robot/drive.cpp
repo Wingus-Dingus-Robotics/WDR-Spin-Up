@@ -74,13 +74,10 @@ void driveInit() {
   controlPID_resetStates(&rotation_pid);
 }
 
+// Unused.
 // void drivePeriodic() {
-//   // Only used in autonomous right now.
-
 //   if (drive_distance_pid_flag) {
-
 //   } else if (drive_rotation_pid_flag) {
-
 //   }
 // }
 

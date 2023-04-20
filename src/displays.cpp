@@ -132,7 +132,9 @@ void displayScreen_competition() {
  * Line will turn red if current limit flag is on.
  */
 void displayScreen_currentLimit() {
-  vexDisplayString(0, "Motor current limits: [index] limit, actual");
+  // vexDisplayString(0, "Motor current limits: [index] limit, actual");
+  int32_t total_current_mA = 0;
+  int32_t total_limit_mA = 0;
   for (uint32_t i = 0; i < 20; i++) {
     // Get motor info
     int32_t motor_current = vexMotorCurrentGet(i);
@@ -159,7 +161,10 @@ void displayScreen_currentLimit() {
     }
       
     vexDisplayStringAt(xpos, ypos, "[%d] %d, %d", i, motor_current_limit, motor_current);
+    total_current_mA += motor_current;
+    total_limit_mA += motor_current_limit;
   }
+  vexDisplayCenteredString(0, "%d of %d [mA]", total_current_mA, total_limit_mA);
 }
 
 /**

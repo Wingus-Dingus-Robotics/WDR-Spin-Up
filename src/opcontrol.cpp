@@ -180,9 +180,10 @@ void opcontrolPeriodic() {
   }
 
   //
-  // Subsystem periodic functions (i.e. closed-loop controllers)
+  // Subsystem periodic functions (e.g. for closed-loop controllers, dynamic current limiting)
   //
 
+  intakePeriodic();
   launcherPeriodic();
   turretPeriodic();
 }
