@@ -1,6 +1,9 @@
 #include "robot/intake.h"
 #include "wdr.h"
 
+// Intake state (used for dynamic current limiting)
+bool intake_off = false;
+
 // Devices
 static VEX_DEVICE_GET(motor_intake_L, port_to_index( PORT_INTAKE_L ));
 static VEX_DEVICE_GET(motor_intake_R, port_to_index( PORT_INTAKE_R ));
@@ -48,11 +51,27 @@ void intakeInit(void) {
   intakeTurretFlaps(false);
 }
 
+void intakePeriodic() {
+  // Intake not spinning, set current limit low
+  if (intake_off) {
+    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_L ), 100);
+    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_R ), 100);
+  } else {
+    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_L ), 1000);
+    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_R ), 1000);
+  }
+}
+
 void intakeDisable() {
   intakeSpin(0);
 }
 
 void intakeSpin(int32_t pwm_value) {
+  if (pwm_value == 0) {
+    intake_off = true;
+  } else {
+    intake_off = false;
+  }
   wdrMotorSetPwm(motor_intake_L, pwm_value);
   wdrMotorSetPwm(motor_intake_R, pwm_value);
 }

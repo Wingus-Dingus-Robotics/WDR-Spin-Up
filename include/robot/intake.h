@@ -12,6 +12,7 @@
 // #define THRESHOLD_DISC_3_ID1  2000
 
 void intakeInit(void);
+void intakePeriodic(void);
 void intakeDisable(void);
 
 void intakeSpin(int32_t pwm_value);

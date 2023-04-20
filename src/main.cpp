@@ -76,6 +76,7 @@ int main() {
         break;
       case Autonomous:
         autoPeriodic();
+        intakePeriodic();
         launcherPeriodic();
         turretPeriodic();
         break;
