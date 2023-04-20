@@ -10,6 +10,9 @@ using namespace vex;
 int displayThread() {
   this_thread::setPriority(thread::threadPrioritylow);
 
+  // TODO: Create an array of function pointers to different screens to display
+  // instead of manually adding a new case and incrementing the max page_number
+
   V5_TouchStatus status;
   vexTouchDataGet(&status);
   int32_t last_press_count = status.pressCount;
@@ -19,7 +22,7 @@ int displayThread() {
     if ((status.lastEvent == kTouchEventPress)
     && (last_press_count) != status.pressCount) {
       page_number++;
-      if (page_number > 2)  page_number = 1;
+      if (page_number > 3)  page_number = 1;
     }
     last_press_count = status.pressCount;
 
@@ -30,6 +33,10 @@ int displayThread() {
 
       case 2:
       displayScreen_currentLimit();
+      break;
+
+      case 3:
+      displayScreen_timing();
       break;
 
       default:
