@@ -32,8 +32,8 @@ static vex::timer flick_timer = vex::timer();
 // Devices
 static VEX_DEVICE_GET(motor_launcher_L, port_to_index( PORT_LAUNCHER_L ) );
 static VEX_DEVICE_GET(motor_launcher_R, port_to_index( PORT_LAUNCHER_R ) );
-static VEX_DEVICE_GET(adi_device, port_to_index( PORT_ADI ));
-static uint32_t solenoid_flick = port_to_index( ADI_LAUNCH_FLICK );
+static VEX_DEVICE_GET(adix_upper_device, port_to_index( PORT_ADIX_UPPER ));
+static uint32_t solenoid_flick = port_to_index( ADIX_UPPER_LAUNCH_FLICK );
 
 void launcherInit() {
   wdr_motor_settings_t launcher_settings = {
@@ -47,7 +47,7 @@ void launcherInit() {
   launcher_settings.reverse = true;
   wdrMotorInit(motor_launcher_L, launcher_settings);
 
-  vexDeviceAdiPortConfigSet(adi_device, solenoid_flick, kAdiPortTypeDigitalOut);
+  vexDeviceAdiPortConfigSet(adix_upper_device, solenoid_flick, kAdiPortTypeDigitalOut);
   launcherFlick(false);
 
   controlPID_init(&speed_pid_L, LAUNCHER_KP, LAUNCHER_KI, LAUNCHER_KD, LAUNCHER_WINDUP, LAUNCHER_DT);
@@ -112,10 +112,10 @@ void launcherDisable() {
 
 void launcherFlick(bool flick) {
   if (flick) {
-    vexDeviceAdiValueSet(adi_device, solenoid_flick, 1);
+    vexDeviceAdiValueSet(adix_upper_device, solenoid_flick, 1);
     launcher_flick_state_out = true;
   } else {
-    vexDeviceAdiValueSet(adi_device, solenoid_flick, 0);
+    vexDeviceAdiValueSet(adix_upper_device, solenoid_flick, 0);
     launcher_flick_state_out = false;
   }
 }

@@ -9,82 +9,16 @@
 #include "wdr.h"
 #include "opcontrol.h"
 #include "auto.h"
+#include "displays.h"
+
+#include <array>
+#include <algorithm>
+// #include <queue> // I want a static queue (FIFO). Look into Embedded Template Library in future?
 
 using namespace vex;
 
-// Global instances of VEX objects?
-vex::brain Brain;
-
-int displayThread() {
-  while (1) {
-    switch (wdrGetCompStatus()) {
-      case Disabled:
-        vexDisplayCenteredString(0, "Disabled");
-        break;
-      case InitAutonomous:
-        vexDisplayCenteredString(0, "Init Auto");
-        break;
-      case Autonomous:
-        vexDisplayCenteredString(0, "Auto");
-        break;
-      case InitDriver:
-        vexDisplayCenteredString(0, "Init Driver");
-        break;
-      case Driver:
-        vexDisplayCenteredString(0, "Driver");
-        break;
-    }
-    vexDisplayString(1, "Jumper ID: %d;    Auto_select: %d", miscGetJumperID(), miscGetAutoSelect());
-
-    uint32_t auto_select = miscGetAutoSelect();
-    if (auto_select < 500) {
-      vexDisplayString(2, "1 drive tune");
-    } else if (auto_select < 1000) {
-      vexDisplayString(2, "2 launcher tune");
-    } else if (auto_select < 1500) {
-      vexDisplayString(2, "3 Left EZ roller preload (tile middle)");
-    } else if (auto_select < 2000) {
-      vexDisplayString(2, "4 Right EZ roller preload (tile top right)");
-    } else if (auto_select < 2500) {
-      vexDisplayString(2, "5 Programming skills");
-    } else if (auto_select < 3000) {
-      vexDisplayString(2, "6 autonomous 6");
-    } else {
-      vexDisplayString(2, "No auto selected");
-    }
-    
-
-    // Update SBF data?
-    vexDisplayString(4, "ENC1,2,3=%u,%u,%u", sbf_data.ENC1, sbf_data.ENC2, sbf_data.ENC3);
-    // Brain.Screen.printAt(10, 100, "ENC1,2,3=%u,%u,%u                  ",
-    //                         sbf_data.ENC1, sbf_data.ENC2, sbf_data.ENC3);
-
-    vexDisplayString(6, "Heading: %f", driveGetHeading());
-    vexDisplayString(7, "Distance: %f", driveGetDistance());
-
-    // vexDisplayString(8, "Disc 1: %d", intakeGetDetectorReading(1));
-    // vexDisplayString(9, "Disc 2: %d", intakeGetDetectorReading(2));
-    // vexDisplayString(10, "Disc 3: %d", intakeGetDetectorReading(3));
-    // vexDisplayString(11, "No. of discs: %d", intakeCountDiscs());
-
-    vexDisplayString(8, "Launcher RPM L: %f", launcher_avg_RPM_L);
-    vexDisplayString(9, "Launcher RPM R: %f", launcher_avg_RPM_R);
-    vexDisplayString(10, "Turret angle: %f", turretGetAngle());
-    vexDisplayString(11, "Turret value: %d", turretGetRawReading());
-
-    // vexDisplayString(12, "Auto select: %d", miscGetAutoSelect());
-
-    // Display update (double buffered)
-    vexDisplayRender(true, true);   // Render back buffer to screen
-    vexDisplayErase();              // Clear the new back buffer
-
-    // Yield for a long time. 
-    // TODO: Reduce priority of this thread too.
-    this_thread::sleep_for(100);
-  }
-
-  return 0;
-}
+// Main loop timing globals
+uint64_t main_execution_time_us, main_yield_time_us;
 
 int commsThread() {
   this_thread::setPriority(thread::threadPriorityNormal);
@@ -112,10 +46,20 @@ int main() {
   turretInit();
 
   thread threadDisplay = thread(displayThread);
-  threadDisplay.setPriority(vex::thread::threadPrioritylow);
   threadDisplay.detach();
 
+  // Loop timing
+  wdr_highres_timer_t main_loop_timer;
+  uint64_t t_execution_us, t_yield_us;
+  uint8_t loop_counter = 0;
+  std::array<uint64_t, 10> array_t_execution, array_t_yield;
+  array_t_execution.fill(0);
+  array_t_yield.fill(0);
+
   while (1) {
+    wdrHighResTimerReset(&main_loop_timer);
+    wdrHighResTimerStart(&main_loop_timer);
+
     // Run correct competition mode
     wdrUpdateCompStatus();
     switch (wdrGetCompStatus()) {
@@ -144,7 +88,27 @@ int main() {
         break;
     }
 
-    // Yield for other threads
-    this_thread::sleep_for(1);
+    // Yield and timing
+    t_execution_us = wdrHighResTimerGetTime(&main_loop_timer);
+    this_thread::sleep_for(1);  // Yield for other threads
+    t_yield_us = wdrHighResTimerGetTime(&main_loop_timer) - t_execution_us;
+
+    // Calculations for average loop timing
+    if (loop_counter < 10) {
+      array_t_execution[loop_counter] = t_execution_us;
+      array_t_yield[loop_counter] = t_yield_us;
+      loop_counter++;
+    } else {
+      loop_counter = 0;
+
+      uint64_t sum_exec = 0;
+      uint64_t sum_yield = 0;
+      for (uint8_t i = 0; i < array_t_execution.size(); i++) {
+        sum_exec += array_t_execution[i];
+        sum_yield += array_t_yield[i];
+      }
+      main_execution_time_us = sum_exec / array_t_execution.size();
+      main_yield_time_us = sum_yield / array_t_yield.size();
+    }
   }
 }
