@@ -45,11 +45,11 @@ void opcontrolPeriodic() {
 
   // Intake roller (and maybe turret roller?)
   if (controllerGetBtnState(kControllerMaster, ButtonR1)) {
-    intakeSpin(-80);
+    intakeSpin(-127);
     turretRollerSpinPWM(-127);
   }
   else if (controllerGetBtnState(kControllerMaster, ButtonR2)) {
-    intakeSpin(80);
+    intakeSpin(127);
     turretRollerSpinPWM(127);
     intakeDeploy(true);
   }
