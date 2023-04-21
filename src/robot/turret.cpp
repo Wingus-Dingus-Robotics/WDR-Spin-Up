@@ -80,9 +80,9 @@ void turretPeriodic() {
   // When brake is applied, set turrent current limit low.
   if (turret_is_settled) {
     vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 100);
-    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 1000);
+    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 2500);
   } else {
-    vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 1000);
+    vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 2500);
     vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 100);
   }
 }
