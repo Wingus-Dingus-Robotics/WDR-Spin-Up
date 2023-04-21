@@ -34,4 +34,37 @@ void controlPID_resetStates(PID_Controller_t *PID);
 void controlPID_setOutputRange(PID_Controller_t *PID, int32_t low, int32_t high);
 void controlPID_calculation(PID_Controller_t *PID, double current_value);
 
+/* Motion profile */
+// Resources:
+// https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/trapezoidal-profiles.html
+// https://www.ctrlaltftc.com/advanced/motion-profiling
+
+typedef struct {
+  // Constraints
+  double max_acceleration;
+  double max_velocity;
+
+  // Goal
+  double final_position;
+
+  // Kinematic targets
+  double target_acceleration;
+  double target_velocity;
+  double target_position;
+
+  // Kinematic states
+  // double actual_acceleration;
+  // double actual_velocity;
+  // double actual_position;
+
+  // std::array<double, 20> actual_position_buffer;
+  // std::array<double, 20> timestep_buffer;
+
+  // Note: You could do some smart stats stuff with predicted vs actual state
+
+} TrapezoidalProfile_t;
+
+void controlProfile_init(TrapezoidalProfile_t *profile, double max_acceleration, double max_velocity, double final_position);
+void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position, double dt);
+
 #endif // UTIL_CONTROL_H
