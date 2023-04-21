@@ -350,52 +350,56 @@ void driveProfileDistance(double distance_mm, double max_acceleration, double ma
     DRIVE_PROFILE_DISTANCE_KI, 
     DRIVE_PROFILE_DISTANCE_KD, 
     DRIVE_PROFILE_DISTANCE_WINDUP, 
-    DRIVE_PROFILE_DT);
+    DRIVE_PROFILE_INNER_DT);
 
-  wdr_timer_t settling_timer;
-  wdrTimerInit(&settling_timer);
+  driveResetDistance();
 
   /* Follow motion profile */
-  // while (fabs(profile.final_position - driveGetDistance()) < DRIVE_PID_DISTANCE_SETTLING_RANGE_MM) {
-  while (wdrTimerGetTime(&settling_timer) < timeout_ms) {
+  uint8_t loop_count = 101;
+  while (fabs(profile.final_position - driveGetDistance()) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+  // while(true) {
     // Update position target
-    controlProfile_update(&profile, driveGetDistance(), position_controller.dt);
+    if (loop_count > 100) {
+      loop_count = 1;
+      controlProfile_update(&profile, driveGetDistance(), DRIVE_PROFILE_OUTER_DT);
+    }
+
+    vexDisplayString(5, "targets: x=%f, v=%f, a=%f", profile.target_position, profile.target_velocity, profile.target_acceleration);
 
     // Position PID controller
     position_controller.target_value = profile.target_position;
+    // position_controller.target_value = 50;
     controlPID_calculation(&position_controller, driveGetDistance());
     driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
 
-    // Settling timeout
-    if (fabs(profile.final_position - driveGetDistance()) < DRIVE_PID_DISTANCE_SETTLING_RANGE_MM) {
-      wdrTimerStart(&settling_timer);
-    } else {
-      wdrTimerReset(&settling_timer);
-    }
-
     // Yield (probably autonomous thread)
-    // vex::this_thread::sleep_for(10);
-    vex::wait(DRIVE_PROFILE_DT, vex::timeUnits::sec);
+    vex::wait(DRIVE_PROFILE_INNER_DT, vex::timeUnits::sec);
+    loop_count++;
   }
 
-  // /* Settling */
-  // position_controller.target_value = profile.final_position;
+  // driveSetPWM(0, 0);
 
-  // wdr_timer_t settling_timer;
-  // wdrTimerInit(&settling_timer);
-  // wdrTimerStart(&settling_timer);
+  /* Settling */
+  position_controller.target_value = profile.final_position;
+
+  wdr_timer_t settling_timer;
+  wdrTimerInit(&settling_timer);
+  wdrTimerStart(&settling_timer);
   
-  // // TODO: Extra timeout timer just in case
+  // TODO: Extra timeout timer just in case
 
-  // while (wdrTimerGetTime(&settling_timer) < timeout_ms) {
-  //   // Position PID controller
-  //   controlPID_calculation(&position_controller, driveGetDistance());
-  //   driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
+  while (wdrTimerGetTime(&settling_timer) < timeout_ms) {
+    // Position PID controller
+    controlPID_calculation(&position_controller, driveGetDistance());
+    driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
 
-  //   // Timer reset
-  //   if (fabs(profile.final_position - driveGetDistance()) > DRIVE_PID_DISTANCE_SETTLING_RANGE_MM) {
-  //     wdrTimerReset(&settling_timer);
-  //     wdrTimerStart(&settling_timer);
-  //   }
-  // }
+    // Timer reset
+    if (fabs(profile.final_position - driveGetDistance()) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+      wdrTimerReset(&settling_timer);
+      wdrTimerStart(&settling_timer);
+    }
+  }
+
+  // End
+  driveSetPWM(0, 0);
 }

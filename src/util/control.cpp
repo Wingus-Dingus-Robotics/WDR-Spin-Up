@@ -148,7 +148,6 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
   }
 
   /* Update setpoints */
-  // double prev_velocity = profile->target_velocity;
   enum profilePeriod {ACCEL, CRUISE, DECCEL, END} period;
 
   // Find which point of motion profile robot is at
