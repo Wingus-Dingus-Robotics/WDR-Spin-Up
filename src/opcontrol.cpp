@@ -29,10 +29,10 @@ void opcontrolPeriodic() {
   int32_t joyX = vexControllerGet(kControllerMaster, Axis1);
 
   // Joystick deadzones
-  if ( abs(joyY) < 20) {
+  if ( abs(joyY) < 10) {
     joyY = 0;
   }
-  if ( abs(joyX) < 20) {
+  if ( abs(joyX) < 10) {
     joyX = 0;
   }
 
