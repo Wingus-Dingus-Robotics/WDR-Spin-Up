@@ -57,8 +57,8 @@ void intakePeriodic() {
     vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_L ), 100);
     vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_R ), 100);
   } else {
-    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_L ), 1000);
-    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_R ), 1000);
+    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_L ), 2500);
+    vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_R ), 2500);
   }
 }
 
