@@ -94,9 +94,9 @@ void intakeMatchLoad(bool load) {
 
 void intakeTurretLoad(bool load_turret) {
   if (load_turret) {
-    vexDeviceAdiValueSet(adix_lower_device, solenoid_lifter, 0);
-  } else {
     vexDeviceAdiValueSet(adix_lower_device, solenoid_lifter, 1);
+  } else {
+    vexDeviceAdiValueSet(adix_lower_device, solenoid_lifter, 0);
   }
 }
 
