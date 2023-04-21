@@ -108,6 +108,7 @@ void controlProfile_init(TrapezoidalProfile_t *profile, double max_acceleration,
 
   // Reset states
   // profile->actual_position = 0;
+  profile->prev_position = 0;
 }
 
 /**
@@ -128,16 +129,27 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
   x_accel = 0.5 * profile->max_acceleration * t_accel * t_accel;
 
   // Eq: Distance covered during cruise period [<unit>]
-  if (2*x_accel > profile->final_position) {
-    x_accel = 0.5 * profile->final_position;
-    x_cruise = 0;
+  if (profile->final_position < 0) {
+    // Negative positions
+    if (2*x_accel < profile->final_position) {
+      x_accel = 0.5 * profile->final_position;
+      x_cruise = 0;
+    } else {
+      x_cruise = profile->final_position - 2*x_accel;
+    }
   } else {
-    x_cruise = profile->final_position - 2*x_accel;
+    // Positive positions
+    if (2*x_accel > profile->final_position) {
+      x_accel = 0.5 * profile->final_position;
+      x_cruise = 0;
+    } else {
+      x_cruise = profile->final_position - 2*x_accel;
+    }
   }
 
   /* Update setpoints */
-  double prev_velocity = profile->target_velocity;
-  enum profilePeriod {ACCEL, CRUISE, DECCEL} period;
+  // double prev_velocity = profile->target_velocity;
+  enum profilePeriod {ACCEL, CRUISE, DECCEL, END} period;
 
   // Find which point of motion profile robot is at
   if (profile->final_position < 0) {
@@ -146,8 +158,10 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
       period = ACCEL;
     } else if (actual_position > (x_accel + x_cruise)) {
       period = CRUISE;
-    } else {
+    } else if (actual_position > (2*x_accel + x_cruise)) {
       period = DECCEL;
+    } else {
+      period = END;
     }
   } else {
     // Positive positions
@@ -155,8 +169,10 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
       period = ACCEL;
     } else if (actual_position < (x_accel + x_cruise)) {
       period = CRUISE;
-    } else {
+    } else if (actual_position < (2*x_accel + x_cruise)) {
       period = DECCEL;
+    } else {
+      period = END;
     }
   }
 
@@ -182,8 +198,21 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
       profile->target_velocity -= profile->max_acceleration * dt;
     }
     break;
+  case END:
+    profile->target_acceleration = 0;
+    profile->target_velocity = 0;
+    break;
   }
 
+  // Calculate actual instantaneous velocity
+  double actual_velocity = (actual_position - profile->prev_position) / dt;
+  profile->prev_position = actual_position;
+
   // Find target position for next dt
-  profile->target_position = actual_position + 0.5 * (profile->target_velocity-prev_velocity)*dt;
+  profile->target_position = actual_position + 0.5 * (actual_velocity + profile->target_velocity)*dt;
+
+  // //Lookahead hack
+  // if (period == ACCEL) {
+  //   profile->target_position += 10;
+  // }
 }

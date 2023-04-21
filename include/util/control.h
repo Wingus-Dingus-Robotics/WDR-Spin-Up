@@ -56,6 +56,7 @@ typedef struct {
   // double actual_acceleration;
   // double actual_velocity;
   // double actual_position;
+  double prev_position;
 
   // std::array<double, 20> actual_position_buffer;
   // std::array<double, 20> timestep_buffer;
