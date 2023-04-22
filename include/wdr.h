@@ -82,7 +82,7 @@ extern uint64_t main_execution_time_us, main_yield_time_us;   // Timing, main.cp
 
 #define ADI_LIFT_PISTON 1   // ?
 #define ADI_PRESSURE    2   // Pressure sensor
-#define ADI_INTAKE_DISC_STAGE_2 3 //?
+#define ADI_DISC_STAGING 3  // Line tracker
 
 #define ADI_AUTO_SELECT 4   // Potentiometer
 #define ADI_TURRET_POS  5   // Potentiometer

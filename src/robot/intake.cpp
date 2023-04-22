@@ -11,7 +11,8 @@ static VEX_DEVICE_GET(adi_device, port_to_index( PORT_ADI ));
 static uint32_t disc_detector_1 = port_to_index( ADI_DISC_1 );
 static uint32_t disc_detector_2 = port_to_index( ADI_DISC_2 );
 static uint32_t disc_detector_3 = port_to_index( ADI_DISC_3 );
-static uint32_t detectors[3] = {disc_detector_1, disc_detector_2, disc_detector_3};
+static uint32_t disc_detector_staging = port_to_index( ADI_DISC_STAGING );
+static uint32_t detectors[4] = {disc_detector_1, disc_detector_2, disc_detector_3, disc_detector_staging};
 static VEX_DEVICE_GET(adix_lower_device, port_to_index( PORT_ADIX_LOWER ));
 static uint32_t solenoid_deploy = port_to_index( ADIX_LOWER_INTAKE_DEPLOY );
 static uint32_t solenoid_matchload = port_to_index( ADIX_LOWER_INTAKE_MATCH_LOAD );
@@ -43,6 +44,7 @@ void intakeInit(void) {
   vexDeviceAdiPortConfigSet(adi_device, disc_detector_1, kAdiPortTypeAnalogIn);
   vexDeviceAdiPortConfigSet(adi_device, disc_detector_2, kAdiPortTypeAnalogIn);
   vexDeviceAdiPortConfigSet(adi_device, disc_detector_3, kAdiPortTypeAnalogIn);
+  vexDeviceAdiPortConfigSet(adi_device, disc_detector_staging, kAdiPortTypeAnalogIn);
 
   // Initial settings for solenoids
   intakeDeploy(false);
@@ -52,6 +54,9 @@ void intakeInit(void) {
 }
 
 void intakePeriodic() {
+  // Intake staging
+  // 
+
   // Intake not spinning, set current limit low
   if (intake_off) {
     vexMotorCurrentLimitSet(port_to_index( PORT_INTAKE_L ), 100);
@@ -139,6 +144,9 @@ bool intakeDiscDetected(uint8_t detector_number) {
       break;
     case 3:
       threshold = THRESHOLD_DISC_3;
+      break;
+    case 4:
+      threshold = THRESHOLD_DISC_STAGING;
       break;
     default:
       return false;
