@@ -4,6 +4,10 @@
 // Intake state (used for dynamic current limiting)
 bool intake_off = false;
 
+// Intake staging states
+bool intake_staging_pause_motors = false;
+wdr_timer_t timer_intake_staging;
+
 // Devices
 static VEX_DEVICE_GET(motor_intake_L, port_to_index( PORT_INTAKE_L ));
 static VEX_DEVICE_GET(motor_intake_R, port_to_index( PORT_INTAKE_R ));
@@ -51,11 +55,35 @@ void intakeInit(void) {
   intakeMatchLoad(false);
   intakeTurretLoad(false);
   intakeTurretFlaps(false);
+
+  // States and timers
+  wdrTimerInit(&timer_intake_staging);
+  intake_staging_pause_motors = false;
 }
 
 void intakePeriodic() {
-  // Intake staging
-  // 
+  /* Intake staging */ 
+
+  if (intakeDiscDetected(4)) {
+    wdrTimerReset(&timer_intake_staging);
+    wdrTimerStart(&timer_intake_staging);
+  }
+
+  // bool intake_staging_pause_motors is checked by intakeSpin()
+
+  if (wdrTimerGetTime(&timer_intake_staging) < 50) {
+    // 1: Spin for 50 ms
+    intake_staging_pause_motors = false;
+  } else if (wdrTimerGetTime(&timer_intake_staging) < 50+100) {
+    // 2: Pause for 100 ms
+    intake_staging_pause_motors = true;
+    intakeSpin(0);  // Make sure intake stops spinning
+  } else {
+    // End of behaviour
+    intake_staging_pause_motors = false;
+  }
+
+  /* Current limiting */
 
   // Intake not spinning, set current limit low
   if (intake_off) {
@@ -72,6 +100,10 @@ void intakeDisable() {
 }
 
 void intakeSpin(int32_t pwm_value) {
+  if (intake_staging_pause_motors) {
+    pwm_value = 0;
+  }
+
   if (pwm_value == 0) {
     intake_off = true;
   } else {
