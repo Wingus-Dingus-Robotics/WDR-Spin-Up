@@ -129,22 +129,33 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
   x_accel = 0.5 * profile->max_acceleration * t_accel * t_accel;
 
   // Eq: Distance covered during cruise period [<unit>]
+  // First check if there will be a cruise period.
+  enum profileShape {TRAPEZOID, TRIANGLE} shape;
   if (profile->final_position < 0) {
-    // Negative positions
+    // Negative final position
     if (2*x_accel < profile->final_position) {
-      x_accel = 0.5 * profile->final_position;
-      x_cruise = 0;
+      shape = TRIANGLE;
     } else {
-      x_cruise = profile->final_position - 2*x_accel;
+      shape = TRAPEZOID;
     }
   } else {
-    // Positive positions
+    // Positive final position
     if (2*x_accel > profile->final_position) {
-      x_accel = 0.5 * profile->final_position;
-      x_cruise = 0;
+      shape = TRIANGLE;
     } else {
-      x_cruise = profile->final_position - 2*x_accel;
+      shape = TRAPEZOID;
     }
+  }
+  // Find cruise distance
+  if (shape == TRIANGLE) {
+    // Recalculate maximum velocity first
+    t_accel = sqrt( profile->final_position / profile->max_acceleration );
+    profile->max_velocity = profile->final_position / t_accel;
+    x_accel = 0.5 * profile->final_position;
+    x_cruise = 0;
+  } else {
+    // Normal trapezoidal profile
+    x_cruise = profile->final_position - 2*x_accel;
   }
 
   /* Update setpoints */

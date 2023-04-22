@@ -38,6 +38,7 @@ void controlPID_calculation(PID_Controller_t *PID, double current_value);
 // Resources:
 // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/trapezoidal-profiles.html
 // https://www.ctrlaltftc.com/advanced/motion-profiling
+// https://www.khanacademy.org/science/physics/one-dimensional-motion/kinematic-formulas/a/what-are-the-kinematic-formulas
 
 typedef struct {
   // Constraints
