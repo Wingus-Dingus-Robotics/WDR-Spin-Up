@@ -8,6 +8,8 @@
 
 // Intake states
 static bool state_match_load = false;
+static bool state_intake_full = false;
+static bool state_turret_loaded = false;
 
 // Timers
 static vex::timer timer_lifter = vex::timer();
@@ -15,7 +17,11 @@ static vex::timer timer_lifter = vex::timer();
 void opcontrolInit() {
   // state_launcher_on = false;
   // state_launcher_short = false;
+
+  // Intake states
   state_match_load = false;
+  state_intake_full = false;
+  state_turret_loaded = false;
 }
 
 void opcontrolPeriodic() {
@@ -43,7 +49,13 @@ void opcontrolPeriodic() {
   // Intake
   //
 
-  // Intake, intake deply, turret roller
+  if (intakeCountDiscs() == 3) {
+    state_intake_full = true;
+  } else {
+    state_intake_full = false;
+  }
+
+  // Intake, intake deploy, turret roller
   if (controllerGetBtnState(kControllerMaster, ButtonR1) && 
   controllerGetBtnState(kControllerMaster, ButtonR2)) {
     // Turret roller
@@ -52,15 +64,29 @@ void opcontrolPeriodic() {
     intakeDeploy(false);
   } else if (controllerGetBtnState(kControllerMaster, ButtonR1)) {
     // Intake reverse
-    intakeSpin(-127);
-    turretRollerSpinPWM(0);
-  } else if (controllerGetBtnState(kControllerMaster, ButtonR2)) {
+    if (state_intake_full) {
+      intakeDeploy(true); // Intake can't spin while deploy up
+      intakeSpin(0);
+      turretRollerSpinPWM(0);
+      //TODO: Wait, then start spinning
+    } else {
+      intakeSpin(-127);
+      turretRollerSpinPWM(0);
+      intakeDeploy(true); // Intake can't spin while deploy up
+    }
+  } else if (controllerGetBtnState(kControllerMaster, ButtonR2) && !(state_intake_full)) {
     // Intake forward
     intakeSpin(127);
     turretRollerSpinPWM(0);
     intakeDeploy(true);
-    // TODO: Deploy has a sequence that uses match load to push intake down
-    // TODO: Check if intaking should be happening?
+    // TODO: Check if intaking should be happening (e.g. not while shooting)
+  } else if (state_intake_full) {
+    // Automatically bring intake up when full (also stop intake)
+    // Note that intake reverse button can still bring intake down
+    //TODO: More states when intake should be up
+    intakeDeploy(false);
+    intakeSpin(0);
+    turretRollerSpinPWM(0);
   } else if (state_match_load) {
     // Match loads
     intakeSpin(-127);
@@ -121,10 +147,11 @@ void opcontrolPeriodic() {
     launcherSetRPM(LAUNCHER_SPEED_MED.left_RPM, LAUNCHER_SPEED_MED.right_RPM);
   }
   if (controllerGetBtnState(kControllerMaster, ButtonUp)) {
-    launcherSetRPM(LAUNCHER_SPEED_HIGH.left_RPM, LAUNCHER_SPEED_HIGH.right_RPM);
+    // launcherSetRPM(LAUNCHER_SPEED_HIGH.left_RPM, LAUNCHER_SPEED_HIGH.right_RPM);
+    launcherSetRPM(0, 0);
   }
   if (controllerGetBtnState(kControllerMaster, ButtonRight)) {
-    launcherSetRPM(0, 0);
+    // launcherSetRPM(0, 0);
   }
 
 
