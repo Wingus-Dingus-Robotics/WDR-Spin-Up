@@ -19,6 +19,23 @@ bool drive_rotation_pid_flag = false;
 static int32_t origin_ENC1, origin_ENC2, origin_ENC3;
 static double origin_heading;
 
+// Starting pose in the Global coordinate frame
+// Set by the autonomous selector
+// Gets used to calculate the Offset of SBF coordinate frame
+//p_start x,y,theta
+
+// Offset of SBF coordinate frame from Global coordinate frame
+// This gets used to transform SBF pose to Global pose
+//q_offset x,y,theta
+
+// Origin of Relative coordinate frame in the Global coordinate frame
+// Set manually with driveResetPose() method
+// Used as reference point for calculating driveGetRelativeDistance(), driveGetRelativeHeading()
+//p_origin
+
+// driveGetPose() returns the current pose of robot in Global coordinate frame
+//p_robot
+
 // Devices
 VEX_DEVICE_GET(motorLFT, port_to_index( PORT_DRIVE_L_FT ));
 VEX_DEVICE_GET(motorLFB, port_to_index( PORT_DRIVE_L_FB ));
