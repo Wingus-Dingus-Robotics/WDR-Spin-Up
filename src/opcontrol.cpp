@@ -43,20 +43,30 @@ void opcontrolPeriodic() {
   // Intake
   //
 
-  // Intake roller (and maybe turret roller?)
-  if (controllerGetBtnState(kControllerMaster, ButtonR1)) {
-    intakeSpin(-127);
+  // Intake, intake deply, turret roller
+  if (controllerGetBtnState(kControllerMaster, ButtonR1) && 
+  controllerGetBtnState(kControllerMaster, ButtonR2)) {
+    // Turret roller
+    intakeSpin(0);
     turretRollerSpinPWM(-127);
-  }
-  else if (controllerGetBtnState(kControllerMaster, ButtonR2)) {
-    intakeSpin(127);
-    turretRollerSpinPWM(127);
-    intakeDeploy(true);
-  }
-  else if (state_match_load) {
+    intakeDeploy(false);
+  } else if (controllerGetBtnState(kControllerMaster, ButtonR1)) {
+    // Intake reverse
     intakeSpin(-127);
-  }
-  else {
+    turretRollerSpinPWM(0);
+  } else if (controllerGetBtnState(kControllerMaster, ButtonR2)) {
+    // Intake forward
+    intakeSpin(127);
+    turretRollerSpinPWM(0);
+    intakeDeploy(true);
+    // TODO: Deploy has a sequence that uses match load to push intake down
+    // TODO: Check if intaking should be happening?
+  } else if (state_match_load) {
+    // Match loads
+    intakeSpin(-127);
+    turretRollerSpinPWM(0);
+  } else {
+    // Stop
     intakeSpin(0);
     turretRollerSpinPWM(0);
   }
