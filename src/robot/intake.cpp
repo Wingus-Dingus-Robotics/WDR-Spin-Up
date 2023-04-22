@@ -8,6 +8,10 @@ bool intake_off = false;
 bool intake_staging_pause_motors = false;
 wdr_timer_t timer_intake_staging;
 
+// Intake deploy
+bool intake_deploy_flag = false;
+wdr_timer_t intake_deploy_timer;
+
 // Devices
 static VEX_DEVICE_GET(motor_intake_L, port_to_index( PORT_INTAKE_L ));
 static VEX_DEVICE_GET(motor_intake_R, port_to_index( PORT_INTAKE_R ));
@@ -59,10 +63,12 @@ void intakeInit(void) {
   // States and timers
   wdrTimerInit(&timer_intake_staging);
   intake_staging_pause_motors = false;
+  intake_deploy_flag = false;
+  wdrTimerInit(&intake_deploy_timer);
 }
 
 void intakePeriodic() {
-  /* Intake staging */ 
+  /* Intake disc staging */ 
 
   if (intakeDiscDetected(4)) {
     wdrTimerReset(&timer_intake_staging);
@@ -81,6 +87,14 @@ void intakePeriodic() {
   } else {
     // End of behaviour
     intake_staging_pause_motors = false;
+  }
+
+  /* Intake deploy sequence */
+  // Push deploy down with match loader
+  if (intake_deploy_flag && (wdrTimerGetTime(&intake_deploy_timer) < 500)) {
+    intakeMatchLoad(true);
+  } else {
+    intakeMatchLoad(false);
   }
 
   /* Current limiting */
@@ -114,9 +128,12 @@ void intakeSpin(int32_t pwm_value) {
 }
 
 void intakeDeploy(bool deploy) {
+  intake_deploy_flag = deploy;
   if (deploy) {
+    wdrTimerStart(&intake_deploy_timer);
     vexDeviceAdiValueSet(adix_lower_device, solenoid_deploy, 1);
   } else {
+    wdrTimerReset(&intake_deploy_timer);
     vexDeviceAdiValueSet(adix_lower_device, solenoid_deploy, 0);
   }
 }
