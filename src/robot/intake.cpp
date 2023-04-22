@@ -91,7 +91,7 @@ void intakePeriodic() {
 
   /* Intake deploy sequence */
   // Push deploy down with match loader
-  if (intake_deploy_flag && (wdrTimerGetTime(&intake_deploy_timer) < 500)) {
+  if (intake_deploy_flag && (wdrTimerGetTime(&intake_deploy_timer) < 250)) {
     intakeMatchLoad(true);
   } else {
     intakeMatchLoad(false);
