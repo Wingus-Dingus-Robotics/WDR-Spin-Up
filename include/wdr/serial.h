@@ -11,13 +11,20 @@ typedef struct {
   uint32_t IMU;
 } sbf_data_t;
 
+typedef struct {
+  uint32_t x;     // Tenths of mm, Right is +ve
+  uint32_t y;     // Tenths of mm, Forwards is +ve
+  uint32_t theta; // Tenths of degree, CW is +ve
+} sbf_pose_t;
+
 // Commands from V5 to SBF
 typedef enum {
   ENC1 = '1',   // Return value of ENC1
   ENC2 = '2',   // ...
   ENC3 = '3',
   IMU = 'I',    // Return value of BNO055 IMU (TODO: What value(s)?)
-  ALL = '0'     // Return every value
+  ALL = '0',    // Return every ENC value
+  POSE = 'P'    // Return robot pose (x, y, theta) [mm] and [deg]
 } V5Cmd_t;
 
 enum SBFErrorCode {

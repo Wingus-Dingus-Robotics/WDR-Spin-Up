@@ -23,7 +23,7 @@ uint64_t main_execution_time_us, main_yield_time_us;
 int commsThread() {
   this_thread::setPriority(thread::threadPriorityNormal);
   while (1) {
-    commsUpdate(ALL);
+    commsUpdate(POSE);
 
     this_thread::sleep_for(10);
   }

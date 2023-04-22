@@ -5,7 +5,8 @@
 using namespace vex;
 
 // Global variables (initial definition)
-sbf_data_t sbf_data = {0};
+sbf_data_t sbf_data = {0};  // NOW UNSED.
+sbf_pose_t sbf_pose = {0};
 
 /**
  * @brief Initialize V5 Smart Port for serial operations
@@ -135,6 +136,15 @@ int32_t wdrReceiveSerialPacket(V5_DeviceT SerialIn, uint8_t command) {
     encValPtr = (uint32_t *)&inBuffer[8];
     sbf_data.ENC3 = *encValPtr;
     break;
+  }
+  case V5Cmd_t::POSE: {
+    uint32_t *poseValPtr;
+    poseValPtr = (uint32_t *)&inBuffer[0];
+    sbf_pose.x = *poseValPtr;
+    poseValPtr = (uint32_t *)&inBuffer[4];
+    sbf_pose.y = *poseValPtr;
+    poseValPtr = (uint32_t *)&inBuffer[8];
+    sbf_pose.theta = *poseValPtr;
   }
 
   default: {
