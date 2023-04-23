@@ -9,12 +9,13 @@
 // Intake states
 static bool state_match_load = false;
 static bool state_intake_stop = false;    // when intake full, and when turret loaded
-static bool state_turret_loaded = false;
 static bool state_roller_prev = false;    // make sure intake is disabled when releasing roller double btn
+static bool state_timetoload = false;    // when any launcher speed is set, it's time to shoot. Make sure discs are loaded.
 
 // Timers
 static vex::timer timer_intake_full = vex::timer();
 static vex::timer timer_lifter = vex::timer();
+static vex::timer timer_launcher_empty = vex::timer();
 
 void opcontrolInit() {
   // state_launcher_on = false;
@@ -23,7 +24,6 @@ void opcontrolInit() {
   // Intake states
   state_match_load = false;
   state_intake_stop = false;
-  state_turret_loaded = false;
   state_roller_prev = false;
 }
 
@@ -56,9 +56,10 @@ void opcontrolPeriodic() {
     // Make sure discs are settled before loading
     if (timer_intake_full.time() > 150) {
       state_intake_stop = true;
-      launcherFlickSetDiscs(3);
       // Automatically load turret
-      intakeTurretLoadSequence();
+      state_timetoload = true;
+      // Default launcher speed: short-range
+      launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
     }
   } else {
     timer_intake_full.reset();
@@ -67,8 +68,12 @@ void opcontrolPeriodic() {
     // a) Haven't just collected 3 discs AND
     // b) Haven't still got discs in turret
     if (launcherFlickCountDiscs() == 0) {
-      state_intake_stop = false;
+      if (timer_launcher_empty.time() > 500) {
+        // Delay after shooting last disc before turning turret back to zero.
+        state_intake_stop = false;
+      }
     } else {
+      timer_launcher_empty.reset();
       state_intake_stop = true; // e.g. manually loaded 1 disc in turret
     }
   }
@@ -123,17 +128,19 @@ void opcontrolPeriodic() {
     if (state_match_load) {
       state_match_load = false;
       intakeMatchLoad(false);
-      // intakeSpin(0);
+      // Intake is turned off in the intake roller logic
     } else {
       state_match_load = true;
       intakeDeploy(true);
-      // Should there be a timer delay here?
-      intakeMatchLoad(true);
-      // intakeSpin(-127);        // Turns on in the intake roller logic
+      // Intake is turned on in the intake roller logic
     }
   }
 
-  // Lift discs to turret (TODO: sequence)
+  if (state_match_load) {
+    intakeMatchLoad(true);  // Deploy sequence will try to pull it back up...
+  }
+
+  // Lift discs to turret
   // Also brings intake deploy up (unless match loader is down)
   if (controllerGetBtnState(kControllerMaster, ButtonL1)) {
     // Start timer once tapped
@@ -143,6 +150,8 @@ void opcontrolPeriodic() {
     }
     // Lift discs to turret, intake deploy up
     intakeTurretLoad(true);
+    // Default launcher speed: short-range
+    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
     if (!state_match_load)  intakeDeploy(false);
   } else {
     if (timer_lifter.time() > 500) {
@@ -154,87 +163,75 @@ void opcontrolPeriodic() {
   // Launcher
   //
 
-  // Flicker //TODO: Flick counter for auto
+  // Flicker
   if (controllerGetBtnState(kControllerMaster, ButtonL2)) {
     launcherFlickSequence(true);
   } else {
     launcherFlickSequence(false);
   }
 
-  // Launcher presets
-  if (controllerGetBtnState(kControllerMaster, ButtonDown)) {
-    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
-  }
-  if (controllerGetBtnState(kControllerMaster, ButtonLeft)) {
-    launcherSetRPM(LAUNCHER_SPEED_MED.left_RPM, LAUNCHER_SPEED_MED.right_RPM);
-  }
+  //
+  // Turret and launcher
+  //
+
+  // TODO: Add a delay before launcher disc count decrements. 
+  // When state_intake_stop is false, return turret to zero. Unless match loading
+
   if (controllerGetBtnState(kControllerMaster, ButtonUp)) {
-    // launcherSetRPM(LAUNCHER_SPEED_HIGH.left_RPM, LAUNCHER_SPEED_HIGH.right_RPM);
+    // Panic reset: Zero turret and launcher speed
+    turretSetAngle(0);
     launcherSetRPM(0, 0);
-  }
-  if (controllerGetBtnState(kControllerMaster, ButtonRight)) {
-    // launcherSetRPM(0, 0);
-  }
-
-
-  // // Launcher low
-  // if (controllerIsBtnPressed(kControllerMaster, ButtonDown)) {
-  //   if (!state_launcher_short) {
-  //     // state_launcher_on = true;
-  //     // launcherSetRPM(2500, 1700);
-  //     launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
-  //     state_launcher_short = true;
-  //   } else {
-  //     // state_launcher_on = false;
-  //     launcherSetRPM(0, 0);
-  //     state_launcher_short = false;
-  //   }
-  // }
-
-  // // Launcher med
-  // if (controllerIsBtnPressed(kControllerMaster, ButtonLeft)) {
-  //   // launcherSetRPM(3200, 1700);
-  //   launcherSetRPM(LAUNCHER_SPEED_MED.left_RPM, LAUNCHER_SPEED_MED.right_RPM);
-  //   state_launcher_short = false;
-  // }
-
-  // // Launcher high
-  // if (controllerIsBtnPressed(kControllerMaster, ButtonUp)) {
-  //   // launcherSetRPM(3500, 2000);
-  //   launcherSetRPM(LAUNCHER_SPEED_HIGH.left_RPM, LAUNCHER_SPEED_HIGH.right_RPM);
-  //   state_launcher_short = false;
-  // }
-
-  //
-  // Temp turret stuff (and special launcher speed)
-  //
-
-  if (controllerGetBtnState(kControllerMaster, ButtonA)) {
+  } else if (controllerGetBtnState(kControllerMaster, ButtonDown)) {
+    // Manual aiming (low speed, straight ahead)
+    turretSetAngle(0);
+    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
+    state_timetoload = true;
+  } else if (controllerGetBtnState(kControllerMaster, ButtonA)) {
+    // Wall turret: Clockwise
     turretSetAngle(100);
-    // launcherSetRPM(2700, 1700);
     launcherSetRPM(LAUNCHER_SPEED_WALL.left_RPM, LAUNCHER_SPEED_WALL.right_RPM);
-    // state_launcher_short = true;
+    state_timetoload = true;
   } else if (controllerGetBtnState(kControllerMaster, ButtonB)) {
+    // Wall turret: Counter-clockwise
     turretSetAngle(-100);
-    // launcherSetRPM(2700, 1700);
     launcherSetRPM(LAUNCHER_SPEED_WALL.left_RPM, LAUNCHER_SPEED_WALL.right_RPM);
-    // state_launcher_short = true;
-  } else {
+    state_timetoload = true;
+  } else if (controllerIsBtnPressed(kControllerMaster, ButtonLeft) && state_intake_stop) {
+    // Nudge turret Left (CCW)
+    // Disabled until intake is stowed
+    if (turretGetTargetAngle() >= -170) {
+      turretSetAngle(turretGetTargetAngle() - 10);
+    }
+  } else if (controllerIsBtnPressed(kControllerMaster, ButtonRight) && state_intake_stop) {
+    // Nudge turret right (CW)
+    // Disabled until intake is stowed
+    if (turretGetTargetAngle() <= 170) {
+      turretSetAngle(turretGetTargetAngle() + 10);
+    }
+  } else if (state_match_load) {
+    // Match load turret angle
+    turretSetAngle(0);
+  } else if (!state_intake_stop) {
+    // If no discs left to launch, and intake pressed, return turret to zero
+    // Generally when intaking, turret should be at zero.
     turretSetAngle(0);
   }
 
-  // Hack to return to a non-special speed
-  if (controllerIsBtnReleased(kControllerMaster, ButtonA) || controllerIsBtnReleased(kControllerMaster, ButtonA)) {
-    // launcherSetRPM(2500, 1700);
-    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
-    // state_launcher_short = true;
+  if (state_timetoload) {
+    uint8_t n_discs_to_load = intakeCountDiscs();
+    if ((launcherFlickCountDiscs() == 0) && (n_discs_to_load > 0)) {
+      // Automatically load turret
+      launcherFlickSetDiscs(n_discs_to_load);
+      intakeTurretLoadSequence();
+    }
+    state_timetoload = false;
   }
 
   //
   // End game string
   //
 
-  if (controllerGetBtnState(kControllerMaster, ButtonRight) && controllerGetBtnState(kControllerMaster, ButtonX)) {
+  if (controllerGetBtnState(kControllerMaster, ButtonUp) && controllerGetBtnState(kControllerMaster, ButtonX)) {
     miscString(true);
   }
 
