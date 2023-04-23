@@ -1,7 +1,5 @@
 #include "robot/comms.h"
 #include "wdr.h"
-#include <array>
-#include <string>
 
 using namespace vex;
 
