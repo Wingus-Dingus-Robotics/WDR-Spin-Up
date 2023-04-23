@@ -20,16 +20,24 @@ void miscInit() {
   vexDeviceAdiPortConfigSet(adix_upper_device, solenoid_string_2, kAdiPortTypeDigitalOut);
   vexDeviceAdiPortConfigSet(adix_lower_device, id_jumper, kAdiPortTypeDigitalIn);
 
-  miscString(false);
+  miscStringL(false);
+  miscStringR(false);
   misc_jumper_id = miscGetJumperID();
 }
 
-void miscString(bool shoot) {
+void miscStringL(bool shoot) {
+  // Shoot left string first.
   if (shoot) {
     vexDeviceAdiValueSet(adix_upper_device, solenoid_string_1, 1);
-    vexDeviceAdiValueSet(adix_upper_device, solenoid_string_2, 1);
   } else {
     vexDeviceAdiValueSet(adix_upper_device, solenoid_string_1, 0);
+  }
+}
+
+void miscStringR(bool shoot) {
+  if (shoot) {
+    vexDeviceAdiValueSet(adix_upper_device, solenoid_string_2, 1);
+  } else {
     vexDeviceAdiValueSet(adix_upper_device, solenoid_string_2, 1);
   }
 }

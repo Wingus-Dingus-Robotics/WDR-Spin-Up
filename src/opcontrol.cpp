@@ -16,6 +16,7 @@ static bool state_timetoload = false;    // when any launcher speed is set, it's
 static vex::timer timer_intake_full = vex::timer();
 static vex::timer timer_lifter = vex::timer();
 static vex::timer timer_launcher_empty = vex::timer();
+static vex::timer timer_string_sequence = vex::timer();
 
 void opcontrolInit() {
   // state_launcher_on = false;
@@ -124,7 +125,7 @@ void opcontrolPeriodic() {
   }
 
   // Match loads
-  if (controllerIsBtnPressed(kControllerMaster, ButtonX)) {
+  if (controllerIsBtnPressed(kControllerMaster, ButtonY)) {
     if (state_match_load) {
       state_match_load = false;
       intakeMatchLoad(false);
@@ -232,7 +233,12 @@ void opcontrolPeriodic() {
   //
 
   if (controllerGetBtnState(kControllerMaster, ButtonUp) && controllerGetBtnState(kControllerMaster, ButtonX)) {
-    miscString(true);
+    miscStringL(true);
+    if (timer_string_sequence.time() > 200) {
+      miscStringR(true);
+    }
+  } else {
+    timer_string_sequence.reset();
   }
 
   //

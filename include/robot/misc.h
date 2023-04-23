@@ -5,7 +5,8 @@
 
 void miscInit(void);
 
-void miscString(bool shoot);
+void miscStringL(bool shoot);
+void miscStringR(bool shoot);
 uint32_t miscGetAutoSelect(void);
 bool miscGetJumperID(void);
 
