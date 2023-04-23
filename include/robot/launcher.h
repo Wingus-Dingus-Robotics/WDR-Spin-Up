@@ -30,6 +30,9 @@ void launcherDisable(void);
 void launcherFlick(bool flick);
 void launcherFlickSequence(bool sequence_on);
 
+void launcherFlickSetDiscs(uint8_t n_discs);
+uint8_t launcherFlickCountDiscs();
+
 void launcherSetPWM(int32_t left_pwm, int32_t right_pwm);
 void launcherSetPWMRamp(int32_t left_pwm_target, int32_t right_pwm_target);
 void launcherSetRPM(double left_RPM_target, double right_RPM_target);

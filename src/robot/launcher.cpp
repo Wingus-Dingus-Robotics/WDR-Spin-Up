@@ -28,6 +28,7 @@ static PID_Controller_t speed_pid_L, speed_pid_R;
 static bool launcher_flick_sequence_on = false;
 static bool launcher_flick_state_out = false;
 static vex::timer flick_timer = vex::timer();
+static uint8_t launcher_discs_loaded = 0;
 
 // Devices
 static VEX_DEVICE_GET(motor_launcher_L, port_to_index( PORT_LAUNCHER_L ) );
@@ -130,6 +131,9 @@ void launcherFlick(bool flick) {
   if (flick) {
     vexDeviceAdiValueSet(adix_upper_device, solenoid_flick, 1);
     launcher_flick_state_out = true;
+    if (launcher_discs_loaded > 0) {
+      launcher_discs_loaded--;
+    }
   } else {
     vexDeviceAdiValueSet(adix_upper_device, solenoid_flick, 0);
     launcher_flick_state_out = false;
@@ -145,6 +149,14 @@ void launcherFlickSequence(bool sequence_on) {
     launcher_flick_sequence_on = false;
     launcherFlick(false);
   }
+}
+
+void launcherFlickSetDiscs(uint8_t n_discs) {
+  launcher_discs_loaded = n_discs;
+}
+
+uint8_t launcherFlickCountDiscs() {
+  return launcher_discs_loaded;
 }
 
 void launcherSetPWM(int32_t left_pwm, int32_t right_pwm) {
