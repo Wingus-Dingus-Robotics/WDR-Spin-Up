@@ -40,7 +40,7 @@ V5_DeviceT right_motors[4] = {motorRFB, motorRRB, motorRFT, motorRRT};  // Bot, 
 void driveInit() {
   wdr_motor_settings_t drive_settings = {
     .control_mode = kMotorControlModeOFF,   // V5 Motor smart controller is off.
-    .brake_mode = kV5MotorBrakeModeCoast,
+    .brake_mode = kV5MotorBrakeModeBrake,
     .encoder_unit = kMotorEncoderCounts,
     .gearset = kMotorGearSet_06,
     .reverse = false

@@ -113,15 +113,16 @@ void displayScreen_competition() {
   vexDisplayString(6, "Heading: %f", driveGetHeading());
   vexDisplayString(7, "Distance: %f", driveGetDistance());
 
-  // vexDisplayString(8, "Disc 1: %d", intakeGetDetectorReading(1));
-  // vexDisplayString(9, "Disc 2: %d", intakeGetDetectorReading(2));
-  // vexDisplayString(10, "Disc 3: %d", intakeGetDetectorReading(3));
-  // vexDisplayString(11, "No. of discs: %d", intakeCountDiscs());
+  vexDisplayString(8, "Disc 1: %d", intakeGetDetectorReading(1));
+  vexDisplayString(9, "Disc 2: %d", intakeGetDetectorReading(2));
+  vexDisplayString(10, "Disc 3: %d", intakeGetDetectorReading(3));
+  // vexDisplayString(11, "Disc staging: %d", intakeGetDetectorReading(4));
+  vexDisplayString(11, "Turret discs: %u", launcherFlickCountDiscs());
 
-  vexDisplayString(8, "Launcher RPM L: %f", launcher_avg_RPM_L);
-  vexDisplayString(9, "Launcher RPM R: %f", launcher_avg_RPM_R);
-  vexDisplayString(10, "Turret angle: %f", turretGetAngle());
-  vexDisplayString(11, "Turret value: %d", turretGetRawReading());
+  // vexDisplayString(8, "Launcher RPM L: %f", launcher_avg_RPM_L);
+  // vexDisplayString(9, "Launcher RPM R: %f", launcher_avg_RPM_R);
+  // vexDisplayString(10, "Turret angle: %f", turretGetAngle());
+  // vexDisplayString(11, "Turret value: %d", turretGetRawReading());
 
   // vexDisplayString(12, "Auto select: %d", miscGetAutoSelect());
 }

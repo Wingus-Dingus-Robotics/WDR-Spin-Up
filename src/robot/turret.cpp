@@ -76,14 +76,14 @@ void turretPeriodic() {
 
   /* Current limiting */
 
-  // Current budget shared between turret and rollers
   // When brake is applied, set turrent current limit low.
+  // Roller current limit is set by turretRollerSpinPWM()
   if (turret_is_settled) {
     vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 100);
-    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 1000);
+    // vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 2500);
   } else {
-    vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 1000);
-    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 100);
+    vexMotorCurrentLimitSet(port_to_index( PORT_TURRET ), 2500);
+    // vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 100);
   }
 }
 
@@ -133,4 +133,10 @@ void turretRollerSpinPWM(int32_t pwm_value) {
   if (pwm_value > 127)       pwm_value = 127;
   else if (pwm_value < -127) pwm_value = -127;
   wdrMotorSetPwm(motor_roller, pwm_value);
+
+  if (pwm_value == 0) {
+    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 100);
+  } else {
+    vexMotorCurrentLimitSet(port_to_index( PORT_ROLLER ), 2500);
+  }
 }
