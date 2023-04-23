@@ -11,6 +11,7 @@ static bool state_match_load = false;
 static bool state_intake_stop = false;    // when intake full, and when turret loaded
 static bool state_roller_prev = false;    // make sure intake is disabled when releasing roller double btn
 static bool state_timetoload = false;    // when any launcher speed is set, it's time to shoot. Make sure discs are loaded.
+static bool state_aimbot = false;   // turret tries to point towards goal, based on SBF pose data
 
 // Timers
 static vex::timer timer_intake_full = vex::timer();
@@ -26,6 +27,7 @@ void opcontrolInit() {
   state_match_load = false;
   state_intake_stop = false;
   state_roller_prev = false;
+  state_aimbot = false;
 }
 
 void opcontrolPeriodic() {
@@ -111,7 +113,9 @@ void opcontrolPeriodic() {
     // Automatically bring intake up when full (also stop intake) OR when turret loaded
     // Note that intake reverse button can still bring intake down
     //TODO: More states when intake should be up
-    intakeDeploy(false);
+    if (!state_match_load) {
+      intakeDeploy(false);
+    }
     intakeSpin(0);
     turretRollerSpinPWM(0);
   } else if (state_match_load) {
@@ -152,8 +156,10 @@ void opcontrolPeriodic() {
     // Lift discs to turret, intake deploy up
     intakeTurretLoad(true);
     // Default launcher speed: short-range
-    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
-    if (!state_match_load)  intakeDeploy(false);
+    if (!state_match_load) {
+      launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
+      intakeDeploy(false);
+    }
   } else {
     if (timer_lifter.time() > 500) {
       intakeTurretLoad(false);
@@ -182,21 +188,34 @@ void opcontrolPeriodic() {
     // Panic reset: Zero turret and launcher speed
     turretSetAngle(0);
     launcherSetRPM(0, 0);
-  } else if (controllerGetBtnState(kControllerMaster, ButtonDown)) {
-    // Manual aiming (low speed, straight ahead)
-    turretSetAngle(0);
-    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
-    state_timetoload = true;
+    state_aimbot = false;
+    state_match_load = false;
+  } else if (controllerIsBtnPressed(kControllerMaster, ButtonDown)) {
+    // Toggle
+    state_match_load = false;
+    if (state_aimbot) {
+      state_aimbot = false;
+      // Manual aiming (low speed, straight ahead)
+      turretSetAngle(0);
+      launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
+      state_timetoload = true;
+    } else {
+      state_aimbot = true;
+    }
   } else if (controllerGetBtnState(kControllerMaster, ButtonA)) {
     // Wall turret: Clockwise
     turretSetAngle(100);
     launcherSetRPM(LAUNCHER_SPEED_WALL.left_RPM, LAUNCHER_SPEED_WALL.right_RPM);
     state_timetoload = true;
+    state_aimbot = false;
+    state_match_load = false;
   } else if (controllerGetBtnState(kControllerMaster, ButtonB)) {
     // Wall turret: Counter-clockwise
     turretSetAngle(-100);
     launcherSetRPM(LAUNCHER_SPEED_WALL.left_RPM, LAUNCHER_SPEED_WALL.right_RPM);
     state_timetoload = true;
+    state_aimbot = false;
+    state_match_load = false;
   } else if (controllerIsBtnPressed(kControllerMaster, ButtonLeft) && state_intake_stop) {
     // Nudge turret Left (CCW)
     // Disabled until intake is stowed
@@ -211,7 +230,7 @@ void opcontrolPeriodic() {
     }
   } else if (state_match_load) {
     // Match load turret angle
-    turretSetAngle(0);
+    turretSetAngle(145);
   } else if (!state_intake_stop) {
     // If no discs left to launch, and intake pressed, return turret to zero
     // Generally when intaking, turret should be at zero.
@@ -226,6 +245,13 @@ void opcontrolPeriodic() {
       intakeTurretLoadSequence();
     }
     state_timetoload = false;
+  }
+
+  if (state_aimbot && state_intake_stop && (!state_match_load)) {
+    // Auto aiming
+    // TODO: implement.
+    turretSetAngle(0);  // Note: Nudge should still work during aimbot
+    launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
   }
 
   //
