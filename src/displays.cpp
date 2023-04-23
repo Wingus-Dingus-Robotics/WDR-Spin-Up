@@ -116,7 +116,8 @@ void displayScreen_competition() {
   vexDisplayString(8, "Disc 1: %d", intakeGetDetectorReading(1));
   vexDisplayString(9, "Disc 2: %d", intakeGetDetectorReading(2));
   vexDisplayString(10, "Disc 3: %d", intakeGetDetectorReading(3));
-  vexDisplayString(11, "Disc staging: %d", intakeGetDetectorReading(4));
+  // vexDisplayString(11, "Disc staging: %d", intakeGetDetectorReading(4));
+  vexDisplayString(11, "Turret discs: %u", launcherFlickCountDiscs());
 
   // vexDisplayString(8, "Launcher RPM L: %f", launcher_avg_RPM_L);
   // vexDisplayString(9, "Launcher RPM R: %f", launcher_avg_RPM_R);

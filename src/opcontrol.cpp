@@ -8,10 +8,11 @@
 
 // Intake states
 static bool state_match_load = false;
-static bool state_intake_full = false;
+static bool state_intake_stop = false;    // when intake full, and when turret loaded
 static bool state_turret_loaded = false;
 
 // Timers
+static vex::timer timer_intake_full = vex::timer();
 static vex::timer timer_lifter = vex::timer();
 
 void opcontrolInit() {
@@ -20,7 +21,7 @@ void opcontrolInit() {
 
   // Intake states
   state_match_load = false;
-  state_intake_full = false;
+  state_intake_stop = false;
   state_turret_loaded = false;
 }
 
@@ -50,9 +51,24 @@ void opcontrolPeriodic() {
   //
 
   if (intakeCountDiscs() == 3) {
-    state_intake_full = true;
+    // Make sure discs are settled before loading
+    if (timer_intake_full.time() > 150) {
+      state_intake_stop = true;
+      launcherFlickSetDiscs(3);
+      // Automatically load turret
+      intakeTurretLoadSequence();
+    }
   } else {
-    state_intake_full = false;
+    timer_intake_full.reset();
+
+    // Allow intake to run if:
+    // a) Haven't just collected 3 discs AND
+    // b) Haven't still got discs in turret
+    if (launcherFlickCountDiscs() == 0) {
+      state_intake_stop = false;
+    } else {
+      state_intake_stop = true; // e.g. manually loaded 1 disc in turret
+    }
   }
 
   // Intake, intake deploy, turret roller
@@ -67,14 +83,14 @@ void opcontrolPeriodic() {
     intakeSpin(-127);   // Subsystem behaviour: won't spin until deployed
     turretRollerSpinPWM(0);
     intakeDeploy(true); // Intake can't spin while deploy up
-  } else if (controllerGetBtnState(kControllerMaster, ButtonR2) && !(state_intake_full)) {
+  } else if (controllerGetBtnState(kControllerMaster, ButtonR2) && !(state_intake_stop)) {
     // Intake forward
     intakeSpin(127);
     turretRollerSpinPWM(0);
     intakeDeploy(true);
     // TODO: Check if intaking should be happening (e.g. not while shooting)
-  } else if (state_intake_full) {
-    // Automatically bring intake up when full (also stop intake)
+  } else if (state_intake_stop) {
+    // Automatically bring intake up when full (also stop intake) OR when turret loaded
     // Note that intake reverse button can still bring intake down
     //TODO: More states when intake should be up
     intakeDeploy(false);
@@ -110,6 +126,7 @@ void opcontrolPeriodic() {
   if (controllerGetBtnState(kControllerMaster, ButtonL1)) {
     // Start timer once tapped
     if (controllerIsBtnPressed(kControllerMaster, ButtonL1)) {
+      launcherFlickSetDiscs(intakeCountDiscs());
       timer_lifter.reset();
     }
     // Lift discs to turret, intake deploy up
