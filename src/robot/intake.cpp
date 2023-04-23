@@ -10,6 +10,7 @@ wdr_timer_t timer_intake_staging;
 
 // Intake deploy
 bool intake_deploy_flag = false;
+bool intake_deploy_pause_motors = false;
 wdr_timer_t intake_deploy_timer;
 
 // Devices
@@ -64,6 +65,7 @@ void intakeInit(void) {
   wdrTimerInit(&timer_intake_staging);
   intake_staging_pause_motors = false;
   intake_deploy_flag = false;
+  intake_deploy_pause_motors = false;
   wdrTimerInit(&intake_deploy_timer);
 }
 
@@ -93,8 +95,11 @@ void intakePeriodic() {
   // Push deploy down with match loader
   if (intake_deploy_flag && (wdrTimerGetTime(&intake_deploy_timer) < 250)) {
     intakeMatchLoad(true);
+    // Also prevent intake from spinning while not deployed
+    intake_deploy_pause_motors = true;
   } else {
     intakeMatchLoad(false);
+    intake_deploy_pause_motors = false;
   }
 
   /* Current limiting */
@@ -115,6 +120,10 @@ void intakeDisable() {
 
 void intakeSpin(int32_t pwm_value) {
   if (intake_staging_pause_motors) {
+    pwm_value = 0;
+  }
+
+  if (intake_deploy_pause_motors) {
     pwm_value = 0;
   }
 

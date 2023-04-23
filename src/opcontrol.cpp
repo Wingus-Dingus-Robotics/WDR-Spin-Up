@@ -64,16 +64,9 @@ void opcontrolPeriodic() {
     intakeDeploy(false);
   } else if (controllerGetBtnState(kControllerMaster, ButtonR1)) {
     // Intake reverse
-    if (state_intake_full) {
-      intakeDeploy(true); // Intake can't spin while deploy up
-      intakeSpin(0);
-      turretRollerSpinPWM(0);
-      //TODO: Wait, then start spinning
-    } else {
-      intakeSpin(-127);
-      turretRollerSpinPWM(0);
-      intakeDeploy(true); // Intake can't spin while deploy up
-    }
+    intakeSpin(-127);   // Subsystem behaviour: won't spin until deployed
+    turretRollerSpinPWM(0);
+    intakeDeploy(true); // Intake can't spin while deploy up
   } else if (controllerGetBtnState(kControllerMaster, ButtonR2) && !(state_intake_full)) {
     // Intake forward
     intakeSpin(127);
