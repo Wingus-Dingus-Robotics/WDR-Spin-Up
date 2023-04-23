@@ -38,7 +38,7 @@ void miscStringR(bool shoot) {
   if (shoot) {
     vexDeviceAdiValueSet(adix_upper_device, solenoid_string_2, 1);
   } else {
-    vexDeviceAdiValueSet(adix_upper_device, solenoid_string_2, 1);
+    vexDeviceAdiValueSet(adix_upper_device, solenoid_string_2, 0);
   }
 }
 
