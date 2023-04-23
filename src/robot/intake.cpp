@@ -112,13 +112,13 @@ void intakePeriodic() {
 
   /* Intake turret loading sequence */
   if (intake_loading_flag) {
-    if (intake_loading_timer.time() < 500) {
+    if (intake_loading_timer.time() < 750) {
       // 1. Load discs into turret
       intakeTurretLoad(true);
     } else {
       // 2. Pull lifter back down
       intakeTurretLoad(false);
-      if (intake_loading_timer.time() > 500+250) {
+      if (intake_loading_timer.time() > 750+250) {
         intake_loading_flag = false;
       }
     }
