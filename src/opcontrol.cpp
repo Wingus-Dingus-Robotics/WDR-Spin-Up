@@ -10,6 +10,7 @@
 static bool state_match_load = false;
 static bool state_intake_stop = false;    // when intake full, and when turret loaded
 static bool state_turret_loaded = false;
+static bool state_roller_prev = false;    // make sure intake is disabled when releasing roller double btn
 
 // Timers
 static vex::timer timer_intake_full = vex::timer();
@@ -23,6 +24,7 @@ void opcontrolInit() {
   state_match_load = false;
   state_intake_stop = false;
   state_turret_loaded = false;
+  state_roller_prev = false;
 }
 
 void opcontrolPeriodic() {
@@ -78,6 +80,16 @@ void opcontrolPeriodic() {
     intakeSpin(0);
     turretRollerSpinPWM(-127);
     intakeDeploy(false);
+    state_roller_prev = true;
+  } else if (state_roller_prev) {
+    // Only allow intake to run again once both roller btns released
+    intakeSpin(0);
+    turretRollerSpinPWM(0);
+    intakeDeploy(false);
+    if (!controllerGetBtnState(kControllerMaster, ButtonR1) && 
+    !controllerGetBtnState(kControllerMaster, ButtonR2)) {
+      state_roller_prev = false;
+    }
   } else if (controllerGetBtnState(kControllerMaster, ButtonR1)) {
     // Intake reverse
     intakeSpin(-127);   // Subsystem behaviour: won't spin until deployed
