@@ -13,6 +13,13 @@ bool intake_deploy_flag = false;
 bool intake_deploy_pause_motors = false;
 wdr_timer_t intake_deploy_timer;
 
+
+// Turret loading sequence
+bool intake_loading_flag = false;
+vex::timer intake_loading_timer = vex::timer();
+// Separate method for loading sequence
+// i.e. keep intakeTurretLoad(), add intakeTurretLoadSequence()
+
 // Devices
 static VEX_DEVICE_GET(motor_intake_L, port_to_index( PORT_INTAKE_L ));
 static VEX_DEVICE_GET(motor_intake_R, port_to_index( PORT_INTAKE_R ));
@@ -67,6 +74,7 @@ void intakeInit(void) {
   intake_deploy_flag = false;
   intake_deploy_pause_motors = false;
   wdrTimerInit(&intake_deploy_timer);
+  intake_loading_flag = false;
 }
 
 void intakePeriodic() {
@@ -100,6 +108,20 @@ void intakePeriodic() {
   } else {
     intakeMatchLoad(false);
     intake_deploy_pause_motors = false;
+  }
+
+  /* Intake turret loading sequence */
+  if (intake_loading_flag) {
+    if (intake_loading_timer.time() < 500) {
+      // 1. Load discs into turret
+      intakeTurretLoad(true);
+    } else {
+      // 2. Pull lifter back down
+      intakeTurretLoad(false);
+      if (intake_loading_timer.time() > 500+250) {
+        intake_loading_flag = false;
+      }
+    }
   }
 
   /* Current limiting */
@@ -161,6 +183,17 @@ void intakeTurretLoad(bool load_turret) {
   } else {
     vexDeviceAdiValueSet(adix_lower_device, solenoid_lifter, 0);
   }
+}
+
+void intakeTurretLoadSequence() {
+  // If not currently doing load sequence, do load sequence
+  if (!intake_loading_flag) {
+    intake_loading_flag = true;
+    intake_loading_timer.reset();
+  }
+
+  // Actual sequence is handled in intakePeriodic
+  // intakeTurretLoad() can still be used for manual control
 }
 
 void intakeTurretFlaps(bool hold) {

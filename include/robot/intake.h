@@ -20,6 +20,7 @@ void intakeSpin(int32_t pwm_value);
 void intakeDeploy(bool deploy);
 void intakeMatchLoad(bool load);
 void intakeTurretLoad(bool load_turret);
+void intakeTurretLoadSequence(void);
 void intakeTurretFlaps(bool hold);
 
 int32_t intakeGetDetectorReading(uint8_t detector_number);
