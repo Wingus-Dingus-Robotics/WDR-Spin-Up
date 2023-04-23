@@ -31,6 +31,7 @@ int32_t turretGetRawReading(void);
 double turretGetAngle(void);
 
 void turretSetAngle(double angle_deg);
+double turretGetTargetAngle(void);
 
 void turretRollerSpinPWM(int32_t pwm_value);
 

@@ -129,6 +129,10 @@ void turretSetAngle(double angle_deg) {
   turret_pid.target_value = angle_deg;
 }
 
+double turretGetTargetAngle() {
+  return turret_pid.target_value;
+}
+
 void turretRollerSpinPWM(int32_t pwm_value) {
   if (pwm_value > 127)       pwm_value = 127;
   else if (pwm_value < -127) pwm_value = -127;
