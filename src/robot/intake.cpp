@@ -105,7 +105,7 @@ void intakePeriodic() {
     intakeMatchLoad(true);
     // Also prevent intake from spinning while not deployed
     intake_deploy_pause_motors = true;
-  } else {
+  } else if (intake_deploy_pause_motors) {
     intakeMatchLoad(false);
     intake_deploy_pause_motors = false;
   }
