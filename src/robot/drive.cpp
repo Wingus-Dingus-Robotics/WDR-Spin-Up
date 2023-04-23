@@ -1,10 +1,6 @@
 #include "robot/drive.h"
 #include "wdr.h"
 
-//
-// Globals
-//
-
 // Motor PWM state and ramping control
 // TODO: Should we work in PWM value or percent for ramping?
 static int32_t left_pwm_actual = 0;
@@ -23,6 +19,23 @@ bool drive_rotation_pid_flag = false;
 static int32_t origin_ENC1, origin_ENC2, origin_ENC3;
 static double origin_heading;
 
+// Starting pose in the Global coordinate frame
+// Set by the autonomous selector
+// Gets used to calculate the Offset of SBF coordinate frame
+//p_start x,y,theta
+
+// Offset of SBF coordinate frame from Global coordinate frame
+// This gets used to transform SBF pose to Global pose
+//q_offset x,y,theta
+
+// Origin of Relative coordinate frame in the Global coordinate frame
+// Set manually with driveResetPose() method
+// Used as reference point for calculating driveGetRelativeDistance(), driveGetRelativeHeading()
+//p_origin
+
+// driveGetPose() returns the current pose of robot in Global coordinate frame
+//p_robot
+
 // Devices
 VEX_DEVICE_GET(motorLFT, port_to_index( PORT_DRIVE_L_FT ));
 VEX_DEVICE_GET(motorLFB, port_to_index( PORT_DRIVE_L_FB ));
@@ -37,6 +50,11 @@ VEX_DEVICE_GET(sensorIMU, port_to_index( PORT_IMU ));
 V5_DeviceT left_motors[4] = {motorLFT, motorLRT, motorLFB, motorLRB};   // Top, Top, Bot, Bot
 V5_DeviceT right_motors[4] = {motorRFB, motorRRB, motorRFT, motorRRT};  // Bot, Bot, Top, Top
 
+/**
+ * @brief Initialize drive subsystem.
+ * 
+ * Includes a 5 second wait for IMU reset.
+ */
 void driveInit() {
   wdr_motor_settings_t drive_settings = {
     .control_mode = kMotorControlModeOFF,   // V5 Motor smart controller is off.
@@ -75,17 +93,49 @@ void driveInit() {
 }
 
 // Unused.
-// void drivePeriodic() {
-//   if (drive_distance_pid_flag) {
-//   } else if (drive_rotation_pid_flag) {
-//   }
-// }
+void drivePeriodic() {
+  // Get position from odometry
 
+  // Update velocity
+  
+  // Update acceleration
+  //linear
+  //angular
+
+  if (drive_distance_pid_flag) {
+    /* Distance control with accel limit */
+
+    // Inputs:
+    // - Distance to travel
+    // - Maximum velocity?
+    // - Maximum acceleration
+
+    // Note: Should calculate when
+
+  } else if (drive_rotation_pid_flag) {
+    /* Rotation control with angular accel limit */
+
+    
+  } else {
+    /* Basic slew rate limit */
+  }
+}
+
+/**
+ * @brief Disable drive subsystem.
+ * 
+ * Sets motor PWM to zero and reset state of all controllers.
+ */
 void driveDisable() {
   driveSetPWM(0, 0);
   controlPID_resetStates(&distance_pid);
   controlPID_resetStates(&rotation_pid);
+  // TODO: Reset new controllers
 }
+
+////////////////////
+// Basic movement //
+////////////////////
 
 void driveSetPWM(int32_t left_pwm, int32_t right_pwm)
 {
@@ -132,18 +182,23 @@ void driveSetPWMRamp(int32_t left_pwm_target, int32_t right_pwm_target) {
   driveSetPWM(left_pwm, right_pwm);
 }
 
-void driveSetPct(double left, double right) {
-  int32_t left_pwm = left * 127;
-  int32_t right_pwm = right * 127;
+// Unused
+// void driveSetPct(double left, double right) {
+//   int32_t left_pwm = left * 127;
+//   int32_t right_pwm = right * 127;
 
-  // TODO Check if ramping is enabled
-  if (drive_ramp_flag) {
-    driveSetPWMRamp(left_pwm, right_pwm);
-  } else {
-    driveSetPWM(left_pwm, right_pwm);
-  }
+//   // TODO Check if ramping is enabled
+//   if (drive_ramp_flag) {
+//     driveSetPWMRamp(left_pwm, right_pwm);
+//   } else {
+//     driveSetPWM(left_pwm, right_pwm);
+//   }
   
-}
+// }
+
+///////////////////
+// Basic sensing //
+///////////////////
 
 void driveResetHeading() {
   origin_heading = vexDeviceImuHeadingGet(sensorIMU);
@@ -164,6 +219,10 @@ double driveGetDistance() {
   int32_t enc_counts = -(sbf_data.ENC1 - origin_ENC1);
   return (double)enc_counts / DRIVE_ENC_RESOLUTION * DRIVE_ODOM_CIRC_MM;
 }
+
+//////////////////////////
+// Controlled movements //
+//////////////////////////
 
 void driveMoveDistance(double distance_mm, int32_t max_pwm, uint32_t timeout_ms) {
   // Setup
@@ -287,4 +346,77 @@ void driveTurnAngle(double angle_deg, int32_t max_pwm, uint32_t timeout_ms) {
   // Reset controller state, ready for next move
   driveSetPWM(0, 0);
   controlPID_resetStates(&rotation_pid);
+}
+
+/**
+ * @brief Blocking move that follows a trapezoidal motion profile.
+ * 
+ * @param distance_mm 
+ * @param max_acceleration 
+ * @param max_velocity 
+ * @param timeout_ms 
+ */
+void driveProfileDistance(double distance_mm, double max_acceleration, double max_velocity, uint32_t timeout_ms) {
+  /* Initialize */
+  TrapezoidalProfile_t profile;
+  controlProfile_init(&profile, max_acceleration, max_velocity, distance_mm);
+
+  PID_Controller_t position_controller;
+  controlPID_init(&position_controller,
+    DRIVE_PROFILE_DISTANCE_KP, 
+    DRIVE_PROFILE_DISTANCE_KI, 
+    DRIVE_PROFILE_DISTANCE_KD, 
+    DRIVE_PROFILE_DISTANCE_WINDUP, 
+    DRIVE_PROFILE_INNER_DT);
+
+  driveResetDistance();
+
+  /* Follow motion profile */
+  uint8_t loop_count = 101;
+  while (fabs(profile.final_position - driveGetDistance()) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+  // while(true) {
+    // Update position target
+    if (loop_count > 100) {
+      loop_count = 1;
+      controlProfile_update(&profile, driveGetDistance(), DRIVE_PROFILE_OUTER_DT);
+    }
+
+    vexDisplayString(5, "targets: x=%f, v=%f, a=%f", profile.target_position, profile.target_velocity, profile.target_acceleration);
+
+    // Position PID controller
+    position_controller.target_value = profile.target_position;
+    // position_controller.target_value = 50;
+    controlPID_calculation(&position_controller, driveGetDistance());
+    driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
+
+    // Yield (probably autonomous thread)
+    vex::wait(DRIVE_PROFILE_INNER_DT, vex::timeUnits::sec);
+    loop_count++;
+  }
+
+  // driveSetPWM(0, 0);
+
+  /* Settling */
+  position_controller.target_value = profile.final_position;
+
+  wdr_timer_t settling_timer;
+  wdrTimerInit(&settling_timer);
+  wdrTimerStart(&settling_timer);
+  
+  // TODO: Extra timeout timer just in case
+
+  while (wdrTimerGetTime(&settling_timer) < timeout_ms) {
+    // Position PID controller
+    controlPID_calculation(&position_controller, driveGetDistance());
+    driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
+
+    // Timer reset
+    if (fabs(profile.final_position - driveGetDistance()) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+      wdrTimerReset(&settling_timer);
+      wdrTimerStart(&settling_timer);
+    }
+  }
+
+  // End
+  driveSetPWM(0, 0);
 }

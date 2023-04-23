@@ -89,10 +89,14 @@ void autoInterrupt() {
 //
 
 int autonomous1() {
-  driveMoveDistance(400, 40, 500);
-  wait(1000, msec);
-  driveMoveDistance(-400, -40, 500);
-  wait(1000, msec);
+  // driveMoveDistance(400, 40, 500);
+  // wait(1000, msec);
+  // driveMoveDistance(-400, -40, 500);
+  // wait(1000, msec);
+
+  // t_accel = max_v / max_a
+  // x_accel = 0.5 * a * t_accel^2
+  driveProfileDistance(500, 200, 500, 500);
 
   // driveTurnAngle(90, 40, 500);
   // wait(1000, msec);

@@ -13,12 +13,17 @@
 
 #include "v5_apitypes.h"
 
-// #define DRIVE_PID_DISTANCE_KP       0.5
-// #define DRIVE_PID_DISTANCE_KI       0.0
-// #define DRIVE_PID_DISTANCE_KD       0.007
-// #define DRIVE_PID_DISTANCE_WINDUP   50.0
-// #define DRIVE_PID_DISTANCE_SETTLING_RANGE_MM  20.0
+// Profiled move PID constants
+#define DRIVE_PROFILE_DISTANCE_KP       0.7
+#define DRIVE_PROFILE_DISTANCE_KI       0.0
+#define DRIVE_PROFILE_DISTANCE_KD       0.0
+#define DRIVE_PROFILE_DISTANCE_WINDUP   50.0
+#define DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM  50.0
 
+#define DRIVE_PROFILE_INNER_DT    0.001
+#define DRIVE_PROFILE_OUTER_DT    0.5
+
+// Basic move PID constants
 #define DRIVE_PID_DISTANCE_KP       0.7
 #define DRIVE_PID_DISTANCE_KI       0.1
 #define DRIVE_PID_DISTANCE_KD       0.003
@@ -33,8 +38,10 @@
 
 #define DRIVE_PID_DT    0.001
 
+// Ramping
 #define RAMPING_INCREMENT_PWM   1
 
+// Distance measurement
 #define DRIVE_ENC_RESOLUTION  8192
 #define DRIVE_ODOM_CIRC_MM    200
 
@@ -51,12 +58,13 @@ void driveMoveDistance(double distance_mm, int32_t max_pwm, uint32_t timeout_ms)
 void driveTurnAngle(double angle_deg, int32_t max_pwm, uint32_t timeout_ms);
 // void driveMoveArc(double max_power, double angle_deg, double radius_cm, int32_t timeout_ms)
 
+void driveProfileDistance(double distance_mm, double max_acceleration, double max_velocity, uint32_t timeout_ms);
+void driveProfileAngle(double angle_deg, double max_acceleration, double max_velocity, uint32_t timeout);
+
 // Sensor functions
 void driveResetHeading(void);
 double driveGetHeading(void);
 void driveResetDistance(void);
 double driveGetDistance(void);
-
-// 
 
 #endif // DRIVE_H
