@@ -14,10 +14,13 @@
 #include "v5_apitypes.h"
 
 // Profiled move PID constants
-#define DRIVE_PROFILE_DISTANCE_KP       0.7
+#define DRIVE_PROFILE_DISTANCE_KF       0.5 //0.5
+
+#define DRIVE_PROFILE_DISTANCE_KP       1.0
 #define DRIVE_PROFILE_DISTANCE_KI       0.0
 #define DRIVE_PROFILE_DISTANCE_KD       0.0
 #define DRIVE_PROFILE_DISTANCE_WINDUP   50.0
+// #define DRIVE_PROFILE_DISTANCE_PID_RANGE_MM  20.0
 #define DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM  50.0
 
 #define DRIVE_PROFILE_INNER_DT    0.001
@@ -62,6 +65,7 @@ void driveProfileDistance(double distance_mm, double max_acceleration, double ma
 void driveProfileAngle(double angle_deg, double max_acceleration, double max_velocity, uint32_t timeout);
 
 // Sensor functions
+void driveResetPose(void);
 void driveResetHeading(void);
 double driveGetHeading(void);
 void driveResetDistance(void);

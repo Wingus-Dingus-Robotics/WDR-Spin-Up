@@ -18,6 +18,7 @@ bool drive_rotation_pid_flag = false;
 // Sensor states
 static int32_t origin_ENC1, origin_ENC2, origin_ENC3;
 static double origin_heading;
+static Pose2D_t origin_pose;
 
 // Starting pose in the Global coordinate frame
 // Set by the autonomous selector
@@ -92,34 +93,34 @@ void driveInit() {
   controlPID_resetStates(&rotation_pid);
 }
 
-// Unused.
-void drivePeriodic() {
-  // Get position from odometry
+// // Unused.
+// void drivePeriodic() {
+//   // Get position from odometry
 
-  // Update velocity
+//   // Update velocity
   
-  // Update acceleration
-  //linear
-  //angular
+//   // Update acceleration
+//   //linear
+//   //angular
 
-  if (drive_distance_pid_flag) {
-    /* Distance control with accel limit */
+//   if (drive_distance_pid_flag) {
+//     /* Distance control with accel limit */
 
-    // Inputs:
-    // - Distance to travel
-    // - Maximum velocity?
-    // - Maximum acceleration
+//     // Inputs:
+//     // - Distance to travel
+//     // - Maximum velocity?
+//     // - Maximum acceleration
 
-    // Note: Should calculate when
+//     // Note: Should calculate when
 
-  } else if (drive_rotation_pid_flag) {
-    /* Rotation control with angular accel limit */
+//   } else if (drive_rotation_pid_flag) {
+//     /* Rotation control with angular accel limit */
 
     
-  } else {
-    /* Basic slew rate limit */
-  }
-}
+//   } else {
+//     /* Basic slew rate limit */
+//   }
+// }
 
 /**
  * @brief Disable drive subsystem.
@@ -200,24 +201,32 @@ void driveSetPWMRamp(int32_t left_pwm_target, int32_t right_pwm_target) {
 // Basic sensing //
 ///////////////////
 
+void driveResetPose(void) {
+  origin_pose = p_global;
+}
+
 void driveResetHeading() {
   origin_heading = vexDeviceImuHeadingGet(sensorIMU);
+  // driveResetPose();
 }
 
 double driveGetHeading(void) {
   return vexDeviceImuHeadingGet(sensorIMU) - origin_heading;
+  // return odomFindHeading(origin_pose, p_global);
 }
 
 void driveResetDistance() {
   origin_ENC1 = sbf_data.ENC1;
-  origin_ENC2 = sbf_data.ENC2;
-  origin_ENC3 = sbf_data.ENC3;
+  // origin_ENC2 = sbf_data.ENC2;
+  // origin_ENC3 = sbf_data.ENC3;
+  driveResetPose();
 }
 
 double driveGetDistance() {
   // ENC to rotations to distance
-  int32_t enc_counts = -(sbf_data.ENC1 - origin_ENC1);
+  int32_t enc_counts = (sbf_data.ENC1 - origin_ENC1);
   return (double)enc_counts / DRIVE_ENC_RESOLUTION * DRIVE_ODOM_CIRC_MM;
+  // return odomFindDistance(origin_pose, p_global);
 }
 
 //////////////////////////
@@ -259,6 +268,11 @@ void driveMoveDistance(double distance_mm, int32_t max_pwm, uint32_t timeout_ms)
   extra_timeout_timer.reset();
   while(drive_distance_pid_flag) {
     double current_distance = driveGetDistance();
+    // if (distance_mm > 0) {
+    //   current_distance = driveGetDistance();
+    // } else {
+    //   current_distance = -driveGetDistance();
+    // }
 
     // PID control
     controlPID_calculation(&distance_pid, current_distance);
@@ -369,49 +383,83 @@ void driveProfileDistance(double distance_mm, double max_acceleration, double ma
     DRIVE_PROFILE_DISTANCE_WINDUP, 
     DRIVE_PROFILE_INNER_DT);
 
+  controlPID_setFeedForward(&position_controller,
+    DRIVE_PROFILE_DISTANCE_KF);
+
   driveResetDistance();
 
   /* Follow motion profile */
   uint8_t loop_count = 101;
-  while (fabs(profile.final_position - driveGetDistance()) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
-  // while(true) {
+
+  if (profile.final_position > 0)
+    controlPID_setOutputRange(&position_controller, 0, 127);
+  else
+    controlPID_setOutputRange(&position_controller, -127, 0);
+  while (true) {
+    double drive_distance = driveGetDistance();
+    // if (max_velocity > 0) {
+    //   drive_distance = driveGetDistance();
+    // } else {
+    //   drive_distance = -driveGetDistance();
+    // }
+
     // Update position target
     if (loop_count > 100) {
       loop_count = 1;
-      controlProfile_update(&profile, driveGetDistance(), DRIVE_PROFILE_OUTER_DT);
+      controlProfile_update(&profile, drive_distance, DRIVE_PROFILE_OUTER_DT);
     }
 
     vexDisplayString(5, "targets: x=%f, v=%f, a=%f", profile.target_position, profile.target_velocity, profile.target_acceleration);
 
     // Position PID controller
     position_controller.target_value = profile.target_position;
-    // position_controller.target_value = 50;
-    controlPID_calculation(&position_controller, driveGetDistance());
+    controlPID_calculationFeedForward(&position_controller, drive_distance, profile.target_velocity);
+    // controlPID_calculation(&position_controller, drive_distance);
     driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
 
     // Yield (probably autonomous thread)
     vex::wait(DRIVE_PROFILE_INNER_DT, vex::timeUnits::sec);
     loop_count++;
+
+    // Break condition
+    if (fabs(profile.final_position - drive_distance) < DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+      break;
+    }
+
+    // // Timer reset
+    // if (fabs(profile.final_position - drive_distance) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+    //   wdrTimerReset(&settling_timer);
+    //   wdrTimerStart(&settling_timer);
+    // }
+
+    // // Timer break condition
+    // if (wdrTimerGetTime(&settling_timer) > timeout_ms) {
+    //   break;
+    // }
+
   }
 
-  // driveSetPWM(0, 0);
-
   /* Settling */
-  position_controller.target_value = profile.final_position;
-
   wdr_timer_t settling_timer;
   wdrTimerInit(&settling_timer);
   wdrTimerStart(&settling_timer);
-  
-  // TODO: Extra timeout timer just in case
 
+  position_controller.target_value = profile.final_position;
+  controlPID_setOutputRange(&position_controller, -127, 127);
   while (wdrTimerGetTime(&settling_timer) < timeout_ms) {
-    // Position PID controller
-    controlPID_calculation(&position_controller, driveGetDistance());
+    double drive_distance = driveGetDistance();
+    // if (max_velocity > 0) {
+    //   drive_distance = driveGetDistance();
+    // } else {
+    //   drive_distance = -driveGetDistance();
+    // }
+
+    // Position PID controller (no feedforward)
+    controlPID_calculation(&position_controller, drive_distance);
     driveSetPWM(position_controller.output_pwm, position_controller.output_pwm);
 
     // Timer reset
-    if (fabs(profile.final_position - driveGetDistance()) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
+    if (fabs(profile.final_position - drive_distance) > DRIVE_PROFILE_DISTANCE_SETTLING_RANGE_MM) {
       wdrTimerReset(&settling_timer);
       wdrTimerStart(&settling_timer);
     }

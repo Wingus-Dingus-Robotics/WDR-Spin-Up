@@ -29,6 +29,10 @@ int32_t commsUpdate(V5Cmd_t command) {
   wdrTransmitSerialCmd(sbfSerialOut, command);
   retVal = wdrReceiveSerialPacket(sbfSerialIn, command);
 
+  // Hack
+  wdrTransmitSerialCmd(sbfSerialOut, V5Cmd_t::ENC1);
+  wdrReceiveSerialPacket(sbfSerialIn, V5Cmd_t::ENC1);
+
   // // TODO: Add debug section here
   // int32_t data = 5;
   // // 1. Convert data to csv row

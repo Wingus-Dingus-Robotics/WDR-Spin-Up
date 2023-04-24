@@ -75,12 +75,12 @@ int main() {
         break;
       case InitAutonomous:
         autoInit();
+        break;
+      case Autonomous:
         if (!first_comp_enable) {
           first_comp_enable = true;
           odomInit();
         }
-        break;
-      case Autonomous:
         autoPeriodic();
         intakePeriodic();
         launcherPeriodic();
@@ -89,13 +89,13 @@ int main() {
       case InitDriver:
         autoInterrupt();
         opcontrolInit();
+        break;
+      case Driver:
+        opcontrolPeriodic();
         if (!first_comp_enable) {
           first_comp_enable = true;
           odomInit();
         }
-        break;
-      case Driver:
-        opcontrolPeriodic();
         break;
     }
 

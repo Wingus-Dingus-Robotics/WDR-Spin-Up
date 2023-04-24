@@ -87,24 +87,25 @@ void controlPID_calculationFeedForward(PID_Controller_t *PID, double current_val
   // Feedforward calculation
   double ff_output = ff_value * PID->kF;
 
-  // Proportional calculation (error)
-  PID->current_value = current_value;
-  PID->error = PID->target_value - PID->current_value;
+  // // Proportional calculation (error)
+  // PID->current_value = current_value;
+  // PID->error = PID->target_value - PID->current_value;
 
-  // Integral calculation (cumulative error)
-  PID->integral += PID->error * PID->dt;
+  // // Integral calculation (cumulative error)
+  // PID->integral += PID->error * PID->dt;
 
-  if (PID->integral > PID->integral_windup_guard)       // Guard high
-    PID->integral = PID->integral_windup_guard;
-  else if (PID->integral < -PID->integral_windup_guard) // Guard low
-    PID->integral = -PID->integral_windup_guard;
+  // if (PID->integral > PID->integral_windup_guard)       // Guard high
+  //   PID->integral = PID->integral_windup_guard;
+  // else if (PID->integral < -PID->integral_windup_guard) // Guard low
+  //   PID->integral = -PID->integral_windup_guard;
 
-  // Derivative calculation (error rate of change)
-  PID->derivative = (PID->error - PID->error_prev) / PID->dt;
-  PID->error_prev = PID->error;
+  // // Derivative calculation (error rate of change)
+  // PID->derivative = (PID->error - PID->error_prev) / PID->dt;
+  // PID->error_prev = PID->error;
 
   // PID output
-  PID->output = ff_output + (PID->kP * PID->error) + (PID->kI * PID->integral) + (PID->kD * PID->derivative);
+  // PID->output = ff_output + (PID->kP * PID->error) + (PID->kI * PID->integral) + (PID->kD * PID->derivative);
+  PID->output = ff_output;    // Hack for using motion profile
   PID->output_pwm = PID->output;
 
   // Clip max/min output
