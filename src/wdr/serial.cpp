@@ -121,12 +121,6 @@ int32_t wdrReceiveSerialPacket(V5_DeviceT SerialIn, uint8_t command) {
     sbf_data.ENC3 = *encValPtr;
     break;
   }
-  // case '4': {
-  //   uint32_t *encValPtr;
-  //   encValPtr = (uint32_t *)&inBuffer[0];
-  //   sbf_ENC4 = *encValPtr;
-  //   break;
-  // }
   case V5Cmd_t::ALL: {
     uint32_t *encValPtr;
     encValPtr = (uint32_t *)&inBuffer[0];
