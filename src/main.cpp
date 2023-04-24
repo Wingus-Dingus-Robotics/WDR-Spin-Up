@@ -12,8 +12,6 @@
 #include "displays.h"
 
 #include <array>
-#include <algorithm>
-// #include <queue> // I want a static queue (FIFO). Look into Embedded Template Library in future?
 
 using namespace vex;
 
