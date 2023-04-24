@@ -123,13 +123,14 @@ int autonomous1() {
 
   // t_accel = max_v / max_a
   // x_accel = 0.5 * a * t_accel^2
-  driveProfileDistance(500, 30, 600, 1000);
+  driveProfileDistance(1000, 30, 50, 1000);
+  // wait(1000, msec);
+  driveProfileDistance(-1000, -30, -50, 1000);
   wait(1000, msec);
-
-  // driveTurnAngle(90, 40, 500);
-  // wait(1000, msec);
-  // driveTurnAngle(-90, -40, 500);
-  // wait(1000, msec);
+  driveTurnAngle(90, 40, 500);
+  wait(1000, msec);
+  driveTurnAngle(-90, -40, 500);
+  wait(1000, msec);
 
   return 0;
 }

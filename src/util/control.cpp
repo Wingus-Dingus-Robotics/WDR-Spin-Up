@@ -195,7 +195,8 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
     x_cruise = 0;
   } else {
     // Normal trapezoidal profile
-    x_cruise = profile->final_position - 2*x_accel;
+    // x_cruise = profile->final_position - 2*x_accel;
+    x_cruise = profile->final_position - 2.5*x_accel;       // Hack for earlier deccellerate
   }
 
   /* Update setpoints */
