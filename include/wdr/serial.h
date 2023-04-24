@@ -24,7 +24,17 @@ typedef enum {
   ENC3 = '3',
   IMU = 'I',    // Return value of BNO055 IMU (TODO: What value(s)?)
   ALL = '0',    // Return every ENC value
-  POSE = 'P'    // Return robot pose (x, y, theta) [mm] and [deg]
+  POSE = 'P',   // Return robot pose (x, y, theta) [mm] and [deg]
+  LED_RED = 'r',
+  LED_GREEN = 'g',
+  LED_BLUE = 'b',
+  LED_ORANGE = 'o',
+  LED_CYAN = 'c',
+  LED_ALIVE = 'h',
+  FLASH_SLOW = 'f',   // Note: Need to stop before changing to fast
+  FLASH_FAST = 'd',
+  FLASH_STOP = 's',
+  BLANK = 'q'         // Blank everything and stop flashing
 } V5Cmd_t;
 
 enum SBFErrorCode {
