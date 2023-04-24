@@ -6,6 +6,9 @@
 // static bool state_launcher_short = false;
 //TODO speed state (currently turns off when pushing low-range)
 
+V5Cmd_t LED_cmd = LED_ALIVE;
+V5Cmd_t FLASH_cmd = FLASH_STOP;
+
 // Intake states
 static bool state_match_load = false;
 static bool state_intake_stop = false;    // when intake full, and when turret loaded
@@ -18,6 +21,15 @@ static vex::timer timer_intake_full = vex::timer();
 static vex::timer timer_lifter = vex::timer();
 static vex::timer timer_launcher_empty = vex::timer();
 static vex::timer timer_string_sequence = vex::timer();
+
+// Send to comms.cpp
+V5Cmd_t opcontrolLED() {
+  return LED_cmd;
+}
+
+V5Cmd_t opcontrolFlash() {
+  return FLASH_cmd;
+}
 
 void opcontrolInit() {
   // state_launcher_on = false;
@@ -50,6 +62,46 @@ void opcontrolPeriodic() {
 
   // Split arcade
   driveSetPWMRamp(joyY + joyX, joyY - joyX);
+
+  //
+  // LED
+  //
+
+  // No. of discs collected
+  switch (intakeCountDiscs()) {
+  case 1:
+    LED_cmd = LED_GREEN;
+    break;
+
+  case 2:
+    LED_cmd = LED_ORANGE;
+    break;
+
+  case 3:
+    LED_cmd = LED_RED;
+    break;
+
+  default:
+    if (launcherFlickCountDiscs() > 0) {
+      // LED_cmd = LED_RED;
+    } else {
+      LED_cmd = LED_ALIVE;
+    }
+  }
+
+  // Flashing
+  if (launcherFlickCountDiscs()) {
+    FLASH_cmd = FLASH_SLOW;
+  } else {
+    FLASH_cmd = FLASH_STOP;
+  }
+
+  // // TODO: Aimbot flashing
+  // if (state_aimbot) {
+  //   FLASH_cmd = FLASH_SLOW;
+  // } else {
+  //   FLASH_cmd = FLASH_STOP;
+  // }
 
   //
   // Intake

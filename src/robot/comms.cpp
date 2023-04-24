@@ -1,5 +1,6 @@
 #include "robot/comms.h"
 #include "wdr.h"
+#include "opcontrol.h"
 
 using namespace vex;
 
@@ -18,7 +19,8 @@ void commsInit(void) {
 
 int32_t commsUpdate(V5Cmd_t command) {
   /* Flashing lights*/
-  wdrTransmitSerialCmd(sbfSerialOut, LED_ALIVE);
+  wdrTransmitSerialCmd(sbfSerialOut, opcontrolLED());
+  wdrTransmitSerialCmd(sbfSerialOut, opcontrolFlash());
 
   /* Everything else*/
 
@@ -27,16 +29,16 @@ int32_t commsUpdate(V5Cmd_t command) {
   wdrTransmitSerialCmd(sbfSerialOut, command);
   retVal = wdrReceiveSerialPacket(sbfSerialIn, command);
 
-  // TODO: Add debug section here
-  int32_t data = 5;
-  // 1. Convert data to csv row
-  char buff[10] = {0};
-  sprintf(buff, "%d, %d\r\n", data, 2);
+  // // TODO: Add debug section here
+  // int32_t data = 5;
+  // // 1. Convert data to csv row
+  // char buff[10] = {0};
+  // sprintf(buff, "%d, %d\r\n", data, 2);
 
-  // 2. Send each char
-  for (int i=0; i<10; i++) {
-    vexDeviceGenericSerialWriteChar(debugOut, buff[i]);
-  }
+  // // 2. Send each char
+  // for (int i=0; i<10; i++) {
+  //   vexDeviceGenericSerialWriteChar(debugOut, buff[i]);
+  // }
 
   return retVal;
 }
