@@ -54,3 +54,29 @@ void odomPeriodic() {
   p_global.x = p_start.x + ( p_sbf.x * cos(theta_rad) + p_sbf.y * sin(theta_rad) );
   p_global.y = p_start.y + ( p_sbf.x * -sin(theta_rad) + p_sbf.y * cos(theta_rad) ); 
 }
+
+/**
+ * @brief Calculate relative distance of p_end from p_begin.
+ * 
+ * Note that this is always positive. Handle direction in drive.cpp methods.
+ *
+ * @param p_begin 
+ * @param p_end 
+ * @return double 
+ */
+double odomFindDistance(Pose2D_t p_begin, Pose2D_t p_end) {
+  double delta_x = p_end.x - p_begin.x;
+  double delta_y = p_end.y - p_begin.y;
+  return sqrt(delta_x*delta_x + delta_y*delta_y);
+}
+
+/**
+ * @brief Calculate relative heading of p_end from p_begin.
+ * 
+ * @param p_begin 
+ * @param p_end 
+ * @return double 
+ */
+double odomFindHeading(Pose2D_t p_begin, Pose2D_t p_end) {
+  return p_end.theta - p_begin.theta;
+}
