@@ -83,9 +83,36 @@ void autoInterrupt() {
   }
 }
 
+Pose2D_t autoGetStartingPose() {
+  Pose2D_t pose;
+  uint32_t auto_select = miscGetAutoSelect();
+  if (auto_select < 500) {
+    // Autonomous 1
+    pose = {0,0,0};
+  } else if (auto_select < 1000) {
+    // Autonomous 2
+    pose = {0,0,0};
+  } else if (auto_select < 1500) {
+    // Autonomous 3
+    pose = {0,0,0};
+  } else if (auto_select < 2000) {
+    // Autonomous 4
+    pose = {0,0,0};
+  } else if (auto_select < 2500) {
+    // Autonomous 5
+    pose = {0,0,0};
+  } else if (auto_select < 3000) {
+    // Autonomous 6
+    pose = {0,0,0};
+  } else {
+    // Default
+    pose = {0,0,0};
+  }
+  return pose;
+}
 
 //
-// Autonomous routines
+// Autonomous routines. Remember to set starting pose above!
 //
 
 int autonomous1() {
