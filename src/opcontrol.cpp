@@ -6,6 +6,8 @@
 // static bool state_launcher_short = false;
 //TODO speed state (currently turns off when pushing low-range)
 
+bool fuck_off_aimbot = true;
+
 V5Cmd_t LED_cmd = LED_ALIVE;
 V5Cmd_t FLASH_cmd = FLASH_STOP;
 
@@ -301,8 +303,24 @@ void opcontrolPeriodic() {
 
   if (state_aimbot && state_intake_stop && (!state_match_load)) {
     // Auto aiming
+    // Issue: Can't turn on aimbot when robot thinks zero discs in turret
+    // Issue: Lots of turret brake application. Either stay still, or turn off.
     // TODO: implement.
-    turretSetAngle(0);  // Note: Nudge should still work during aimbot
+    double goal_x = 300;
+    double goal_y = 300;
+    double dx = goal_x - p_global.x;
+    double dy = goal_y - p_global.y;
+    double target_global_deg = -atan(dy/dx) * (180.0 / M_PI);
+    double target_turret_deg = target_global_deg - (fmod(p_global.theta, 360));
+
+    if ((target_turret_deg < -100)) target_turret_deg = -100;
+    if ((target_turret_deg > 100)) target_turret_deg = 100;
+
+    if (!fuck_off_aimbot)
+      turretSetAngle(target_turret_deg);  // Note: Nudge should be made to still work during aimbot
+    else
+      turretSetAngle(0);
+    
     launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
   }
 

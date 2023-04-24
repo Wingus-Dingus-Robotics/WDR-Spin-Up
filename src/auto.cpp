@@ -88,7 +88,7 @@ Pose2D_t autoGetStartingPose() {
   uint32_t auto_select = miscGetAutoSelect();
   if (auto_select < 500) {
     // Autonomous 1
-    pose = {0,0,0};
+    pose = {1800,1800,0};
   } else if (auto_select < 1000) {
     // Autonomous 2
     pose = {0,0,0};
