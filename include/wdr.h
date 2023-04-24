@@ -101,12 +101,11 @@ extern Pose2D_t p_sbf, p_global, p_start;  // Robot odometry
 #define ADIX_LOWER_INTAKE_LIFTER  5 // Pneumatic solenoid, lifts discs into turret
 #define ADIX_LOWER_TURRET_BRAKE   6 // Pneumatic solenoid
 
-#define ADIX_LOWER_JUMPER_ID    7 //TODO: Define where this should actually go
-
 #define ADIX_UPPER_LAUNCH_FLICK     1   // Pneumatic solenoid, flick disc into launcher
 #define ADIX_UPPER_STRING_1         2   // Pneumatic solenoid
 #define ADIX_UPPER_STRING_2         3   // Pneumatic solenoid
 #define ADIX_UPPER_ROLLER_ROTATION  4   // Roller rotation sensor
+#define ADIX_UPPER_JUMPER_ID        8 // Robot ID jumper (in == white/15")
 
 // Motors
 #define PORT_LAUNCHER_L 1
