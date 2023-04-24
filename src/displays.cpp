@@ -108,12 +108,22 @@ void displayScreen_competition() {
   // Update SBF data?
   // vexDisplayString(4, "ENC1,2,3=%u,%u,%u", sbf_data.ENC1, sbf_data.ENC2, sbf_data.ENC3);
   // vexDisplayString(4, "RAWx,y,theta=%u,%u,%u", sbf_pose.x, sbf_pose.y, sbf_pose.theta);
-  int32_t offset_xy = 10000000; // 1000m --> [tenths of mm]
-  int32_t offset_theta = 1000 * 3600;  // 1000 rotations --> [tenths of deg]
-  vexDisplayString(4, "POSEx,y,theta=%d, %d, %d",
-    ((int32_t)sbf_pose.x - offset_xy), 
-    ((int32_t)sbf_pose.y - offset_xy), 
-    ((int32_t)sbf_pose.theta - offset_theta));
+
+  // int32_t offset_xy = 10000000; // 1000m --> [tenths of mm]
+  // int32_t offset_theta = 1000 * 3600;  // 1000 rotations --> [tenths of deg]
+  // vexDisplayString(4, "POSEx,y,theta=%d, %d, %d",
+  //   ((int32_t)sbf_pose.x - offset_xy), 
+  //   ((int32_t)sbf_pose.y - offset_xy), 
+  //   ((int32_t)sbf_pose.theta - offset_theta));
+
+  vexDisplayString(3, "p_start = %.2f, %.2f, %.2f",
+    p_start.x,
+    p_start.y,
+    p_start.theta);
+  vexDisplayString(4, "p_global x,y,theta= %.2f, %.2f, %.2f",
+    p_global.x,
+    p_global.y,
+    p_global.theta);
 
   vexDisplayString(6, "Heading: %f", driveGetHeading());
   vexDisplayString(7, "Distance: %f", driveGetDistance());
