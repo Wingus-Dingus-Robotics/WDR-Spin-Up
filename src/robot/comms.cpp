@@ -17,6 +17,11 @@ void commsInit(void) {
 }
 
 int32_t commsUpdate(V5Cmd_t command) {
+  /* Flashing lights*/
+  wdrTransmitSerialCmd(sbfSerialOut, LED_ALIVE);
+
+  /* Everything else*/
+
   int32_t retVal = 0;
 
   wdrTransmitSerialCmd(sbfSerialOut, command);
