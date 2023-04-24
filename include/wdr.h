@@ -58,10 +58,12 @@
 // Any file that includes wdr.h can access these.
 extern sbf_data_t sbf_data; // Encoder data received from SBF coprocessor (NOW UNUSED.)
 extern sbf_pose_t sbf_pose; // Pose data received from SBF coprocessor
-extern Pose2D_t global_pose;  // Global pose of robot on field
+// extern Pose2D_t global_pose;  // Global pose of robot on field
 extern double launcher_avg_RPM_L, launcher_avg_RPM_R;
 extern bool misc_jumper_id;       // Robot ID jumper, misc.cpp
 extern uint64_t main_execution_time_us, main_yield_time_us;   // Timing, main.cpp
+
+extern Pose2D_t p_sbf, p_global, p_start;  // Robot odometry
 
 /*
  *  Port macros

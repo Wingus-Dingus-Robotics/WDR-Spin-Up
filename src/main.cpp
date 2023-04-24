@@ -24,6 +24,7 @@ int commsThread() {
   this_thread::setPriority(thread::threadPriorityNormal);
   while (1) {
     commsUpdate(POSE);
+    odomPeriodic();
 
     this_thread::sleep_for(10);
   }
@@ -56,6 +57,9 @@ int main() {
   array_t_execution.fill(0);
   array_t_yield.fill(0);
 
+  // Odometry init
+  bool first_comp_enable = false;
+
   while (1) {
     wdrHighResTimerReset(&main_loop_timer);
     wdrHighResTimerStart(&main_loop_timer);
@@ -73,6 +77,10 @@ int main() {
         break;
       case InitAutonomous:
         autoInit();
+        if (!first_comp_enable) {
+          first_comp_enable = true;
+          odomInit();
+        }
         break;
       case Autonomous:
         autoPeriodic();
@@ -83,6 +91,10 @@ int main() {
       case InitDriver:
         autoInterrupt();
         opcontrolInit();
+        if (!first_comp_enable) {
+          first_comp_enable = true;
+          odomInit();
+        }
         break;
       case Driver:
         opcontrolPeriodic();
