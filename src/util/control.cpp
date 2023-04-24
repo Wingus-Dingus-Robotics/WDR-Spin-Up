@@ -8,6 +8,7 @@
 void controlPID_init(PID_Controller_t *PID, double kP, double kI, double kD, double integral_windup_guard, double dt)
 {
   // Arguments
+  PID->kF = 0.0;
   PID->kP = kP;   // equivalent to (*PID).kP = kP
   PID->kI = kI;
   PID->kD = kD;
@@ -36,6 +37,7 @@ void controlPID_resetStates(PID_Controller_t *PID)
   // PID->enable_flag = false;
   PID->target_value = 0;
   PID->current_value = 0;
+  PID->ff_value = 0;
   PID->output = 0;
   PID->output_pwm = 0;
 }
@@ -66,6 +68,43 @@ void controlPID_calculation(PID_Controller_t *PID, double current_value)
 
   // PID output
   PID->output = (PID->kP * PID->error) + (PID->kI * PID->integral) + (PID->kD * PID->derivative);
+  PID->output_pwm = PID->output;
+
+  // Clip max/min output
+  if (PID->output_pwm > PID->output_range_high_pwm)
+    PID->output_pwm = PID->output_range_high_pwm;
+  else if (PID->output_pwm < PID->output_range_low_pwm)
+    PID->output_pwm = PID->output_range_low_pwm;
+}
+
+/* Optional feedforward */
+
+void controlPID_setFeedForward(PID_Controller_t *PID, double kF) {
+  PID->kF = kF;
+}
+
+void controlPID_calculationFeedForward(PID_Controller_t *PID, double current_value, double ff_value) {
+  // Feedforward calculation
+  double ff_output = ff_value * PID->kF;
+
+  // Proportional calculation (error)
+  PID->current_value = current_value;
+  PID->error = PID->target_value - PID->current_value;
+
+  // Integral calculation (cumulative error)
+  PID->integral += PID->error * PID->dt;
+
+  if (PID->integral > PID->integral_windup_guard)       // Guard high
+    PID->integral = PID->integral_windup_guard;
+  else if (PID->integral < -PID->integral_windup_guard) // Guard low
+    PID->integral = -PID->integral_windup_guard;
+
+  // Derivative calculation (error rate of change)
+  PID->derivative = (PID->error - PID->error_prev) / PID->dt;
+  PID->error_prev = PID->error;
+
+  // PID output
+  PID->output = ff_output + (PID->kP * PID->error) + (PID->kI * PID->integral) + (PID->kD * PID->derivative);
   PID->output_pwm = PID->output;
 
   // Clip max/min output

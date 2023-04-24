@@ -5,6 +5,7 @@
 
 typedef struct {
   // Controller parameters
+  double kF;    // Optional feedforward.
   double kP;                     //
   double kI;                     //
   double kD;                     //
@@ -24,6 +25,7 @@ typedef struct {
   // Controller states
   double target_value;
   double current_value;
+  double ff_value;      // For optional feedforward
   double output;             // Output: Actual output of PID calculation
   int32_t output_pwm;       // Output: PWM value between -127 to 127 to input to motor PWM control.
 } PID_Controller_t;
@@ -33,6 +35,10 @@ void controlPID_init(PID_Controller_t *PID, double kP, double kI, double kD, dou
 void controlPID_resetStates(PID_Controller_t *PID);
 void controlPID_setOutputRange(PID_Controller_t *PID, int32_t low, int32_t high);
 void controlPID_calculation(PID_Controller_t *PID, double current_value);
+
+// Optional feedforward term
+void controlPID_setFeedForward(PID_Controller_t *PID, double kF);
+void controlPID_calculationFeedForward(PID_Controller_t *PID, double current_value, double ff_value);
 
 /* Motion profile */
 // Resources:
