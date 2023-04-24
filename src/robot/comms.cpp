@@ -17,6 +17,7 @@ void commsInit(void) {
   wdrSerialPortInit(debugOut, 115200);
 }
 
+V5Cmd_t prev_LED = LED_ALIVE;
 static V5Cmd_t competitionLED() {
   // No. of discs collected
   switch (intakeCountDiscs()) {
@@ -33,11 +34,11 @@ static V5Cmd_t competitionLED() {
     break;
 
   default:
-    // if (launcherFlickCountDiscs() > 0) {
-    //   // LED_cmd = LED_RED;
-    // } else {
+    if (launcherFlickCountDiscs() > 0) {
+      return prev_LED;
+    } else {
       return LED_ALIVE;
-    // }
+    }
   }
 }
 
@@ -52,7 +53,8 @@ static V5Cmd_t competitionFlash() {
 
 int32_t commsUpdate(V5Cmd_t command) {
   /* Flashing lights*/
-  wdrTransmitSerialCmd(sbfSerialOut, competitionLED());
+  prev_LED = competitionLED();
+  wdrTransmitSerialCmd(sbfSerialOut, prev_LED);
   wdrTransmitSerialCmd(sbfSerialOut, competitionFlash());
 
   /* Everything else*/
