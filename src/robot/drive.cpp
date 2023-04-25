@@ -46,7 +46,7 @@ VEX_DEVICE_GET(motorRFT, port_to_index( PORT_DRIVE_R_FT ));
 VEX_DEVICE_GET(motorRFB, port_to_index( PORT_DRIVE_R_FB ));
 VEX_DEVICE_GET(motorRRT, port_to_index( PORT_DRIVE_R_RT ));
 VEX_DEVICE_GET(motorRRB, port_to_index( PORT_DRIVE_R_RB ));
-VEX_DEVICE_GET(sensorIMU, port_to_index( PORT_IMU ));
+// VEX_DEVICE_GET(sensorIMU, port_to_index( PORT_IMU ));
 
 V5_DeviceT left_motors[4] = {motorLFT, motorLRT, motorLFB, motorLRB};   // Top, Top, Bot, Bot
 V5_DeviceT right_motors[4] = {motorRFB, motorRRB, motorRFT, motorRRT};  // Bot, Bot, Top, Top
@@ -81,8 +81,8 @@ void driveInit() {
   }
 
   // Sensors
-  vexDeviceImuReset(sensorIMU);
-  vex::this_thread::sleep_for(5000);
+  // vexDeviceImuReset(sensorIMU);
+  // vex::this_thread::sleep_for(5000);
   driveResetDistance();
   driveResetHeading();
 
@@ -206,13 +206,13 @@ void driveResetPose(void) {
 }
 
 void driveResetHeading() {
-  origin_heading = vexDeviceImuHeadingGet(sensorIMU);
-  // driveResetPose();
+  // origin_heading = vexDeviceImuHeadingGet(sensorIMU);
+  origin_heading = p_global.theta;
 }
 
 double driveGetHeading(void) {
-  return vexDeviceImuHeadingGet(sensorIMU) - origin_heading;
-  // return odomFindHeading(origin_pose, p_global);
+  // return vexDeviceImuHeadingGet(sensorIMU) - origin_heading;
+  return p_global.theta - origin_heading;
 }
 
 void driveResetDistance() {
