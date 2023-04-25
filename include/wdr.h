@@ -65,6 +65,10 @@ extern uint64_t main_execution_time_us, main_yield_time_us;   // Timing, main.cp
 
 extern Pose2D_t p_sbf, p_global, p_start;  // Robot odometry
 
+// opcontrol behaviour -> auto hack
+extern int32_t auto_intake_pwm;
+extern bool auto_timetoload;
+
 /*
  *  Port macros
  */

@@ -17,12 +17,7 @@ void autoInterrupt();
 Pose2D_t autoGetStartingPose(void);
 
 // Autonomous routines (to be run as threads)
-int autonomous1(void);
-int autonomous2(void);
-int autonomous3(void);
-int autonomous4(void);
-int autonomous5(void);
-int autonomous6(void);
+// Have moved to auto_routines_<turret-colour> files
 int autonomousNothing(void);
 
 #endif // AUTO_H
