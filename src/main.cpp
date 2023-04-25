@@ -29,7 +29,6 @@ int commsThread() {
   return 0;
 }
 
-
 int main() {
   // Run robot subsystem initialization functions
   commsInit();
