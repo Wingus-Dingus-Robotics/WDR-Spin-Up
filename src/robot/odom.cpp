@@ -27,6 +27,9 @@ void odomInit() {
   // Starting pose in SBF frame is now {0,0,0}
 
   // Starting pose in Global frame is determined by autoGetStartingPose()
+
+  // First call of periodic
+  odomPeriodic();
 }
 
 /**
