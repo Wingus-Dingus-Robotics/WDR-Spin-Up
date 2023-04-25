@@ -259,13 +259,128 @@ int white_autonomous5() {
   return 0;
 }
 
+/**
+ * @brief Right safe route
+ * 
+ */
 int white_autonomous6() {
+  // Setup
+  // - In front of first disc. Middle of tile.
 
+  /////// Point and shoot
+
+  // Lock turret in position
+  turretSetAngle(turretGetAngle());
+
+  // Shoot first.
+  launcherSetRPM(4400, 1500);
+  wait(1500, msec);
+  intakeTurretLoad(false);
+  wait(500, msec);
+
+  // Shoot discs
+  launcherFlickSetDiscs(2);
+  while (launcherFlickCountDiscs() > 0) {
+    launcherFlickSequence(true);
+    wait(500, msec);
+  }
+  wait(500, msec);
+  launcherFlickSequence(false);
+  // launcherSetRPM(0, 0);
+
+  // Lock turret at zero
+  turretSetAngle(0);
+  wait(1000, msec);
+
+  ///////////////////
+
+  // Deploy intake, collect disc 1
+  intakeDeploy(true);
+  wait(500, msec);
+  auto_intake_pwm = 127;
+  driveProfileDistance(600, 30, 30, 1000);
+  wait(500, msec);
+
+  // Turn to discs, collect remaining discs, load
+  driveTurnAngle(-45, 40, 1000);
+  wait(500, msec);
+  driveProfileDistance(1000, 30, 30, 1000);
+  wait(500, msec);
+  auto_intake_pwm = 0;
+  auto_timetoload = true;
+  intakeDeploy(false);
+  wait(1000, msec);
+
+  // Aim turret
+  launcherSetRPM(4400, 1500);
+  turretSetAngle(90);
+  wait(2000, msec);
+
+  // Shoot discs
+  while (launcherFlickCountDiscs() > 0) {
+    launcherFlickSequence(true);
+    wait(500, msec);
+  }
+  wait(500, msec);
+  launcherFlickSequence(false);
+
+  //////////////////////
+
+  // Reset turret, turn to discs
+  turretSetAngle(0);
+  driveTurnAngle(-135, 40, 1000);
   
+  // Deploy intake, collect 3 discs, load (no turret yet)
+  intakeDeploy(true);
+  wait(500, msec);
+  auto_intake_pwm = 127;
+  driveProfileDistance(1250, 30, 30, 1000);
+  wait(500, msec);
+  auto_intake_pwm = 0;
+  intakeDeploy(false);
+  auto_timetoload = true;
+
+  // Drive to roller
+  driveTurnAngle(-90, 40, 1000);
+  wait(500, msec);
+  driveProfileDistance(1100, 50, 30, 1000);
+  wait(500, msec);
+
+  // Aim turret
+  launcherSetRPM(4400, 1500);
+  turretSetAngle(-80);
+  wait(2000, msec);
+
+  // Shoot 3 discs
+  while (launcherFlickCountDiscs() > 0) {
+    launcherFlickSequence(true);
+    wait(500, msec);
+  }
+  wait(500, msec);
+  launcherFlickSequence(false);
+
+  // Reset turret, turn to roller
+  launcherSetRPM(0, 0);
+  turretSetAngle(0);
+  driveTurnAngle(-90, 40, 1000);
+  wait(500, msec);
+
+  // Drive backward into roller, spin a bit
+  driveSetPWM(-30, -30);
+  wait(1000, msec);
+  turretRollerSpinPWM(127);
+  wait(300, msec);
+
+  turretRollerSpinPWM(0);
+  driveMoveDistance(200, 50, 500);
 
   return 0;
 }
 
+/**
+ * @brief 
+ * 
+ */
 int white_autonomous7() {
   return 0;
 }

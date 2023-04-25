@@ -304,15 +304,16 @@ void driveMoveDistance(double distance_mm, int32_t max_pwm, uint32_t timeout_ms)
 void driveTurnAngle(double angle_deg, int32_t max_pwm, uint32_t timeout_ms) {
   // Setup
   driveResetHeading();
+  vex::this_thread::sleep_for(10);
   drive_distance_pid_flag = false;
   drive_rotation_pid_flag = true;
   vex::timer timeout_timer = vex::timer();
   vex::timer extra_timeout_timer = vex::timer();  // Hack for moves that don't reach settling zone
   rotation_pid.target_value = angle_deg;
   // if (max_pwm > 0) {
-  //   controlPID_setOutputRange(&rotation_pid, -max_pwm, max_pwm);
+    // controlPID_setOutputRange(&rotation_pid, -max_pwm, max_pwm);
   // } else {
-  //   controlPID_setOutputRange(&rotation_pid, max_pwm, -max_pwm);
+    // controlPID_setOutputRange(&rotation_pid, max_pwm, -max_pwm);
   // }
   controlPID_setOutputRange(&rotation_pid, -max_pwm, max_pwm);
 
@@ -321,7 +322,8 @@ void driveTurnAngle(double angle_deg, int32_t max_pwm, uint32_t timeout_ms) {
   drive_ramp_R_on_target_flag = false;
   while (!(drive_ramp_L_on_target_flag && drive_ramp_R_on_target_flag)) {
     if (drive_ramp_flag) {
-      (max_pwm > 0) ? 
+      // driveSetPWMRamp(max_pwm, -max_pwm);
+      (angle_deg > 0.0) ? 
         driveSetPWMRamp(max_pwm, -max_pwm) :
         driveSetPWMRamp(-max_pwm, max_pwm);
     } else {
@@ -343,7 +345,7 @@ void driveTurnAngle(double angle_deg, int32_t max_pwm, uint32_t timeout_ms) {
     driveSetPWM(rotation_pid.output_pwm, -rotation_pid.output_pwm);
 
     // Reset timeout if too far from target
-    if (abs(angle_deg - current_heading) > DRIVE_PID_ROTATION_SETTLING_ANGLE_DEG) {
+    if (fabs(angle_deg - current_heading) > DRIVE_PID_ROTATION_SETTLING_ANGLE_DEG) {
       timeout_timer.reset();
     }
 
