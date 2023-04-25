@@ -44,21 +44,7 @@ Pose2D_t black_autoGetStartingPose(void) {
  * Power/velocity values from here are probably okay to use.
  */
 int black_autonomous1(void) {
-  // driveMoveDistance(400, 40, 500);
-  // wait(1000, msec);
-  // driveMoveDistance(-400, -40, 500);
-  // wait(1000, msec);
-
-  // t_accel = max_v / max_a
-  // x_accel = 0.5 * a * t_accel^2
-  driveProfileDistance(1000, 30, 50, 1000);
-  // wait(1000, msec);
-  driveProfileDistance(-1000, -30, -50, 1000);
-  wait(1000, msec);
-  driveTurnAngle(90, 40, 500);
-  wait(1000, msec);
-  driveTurnAngle(-90, -40, 500);
-  wait(1000, msec);
+  white_autonomous1();
 
   return 0;
 }

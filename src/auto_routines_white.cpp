@@ -3,6 +3,9 @@
 
 using namespace vex;
 
+static double A_ANGLE = 30;
+static double V_ANGLE = 30;
+
 Pose2D_t white_autoGetStartingPose(void) {
   Pose2D_t pose;
   uint32_t auto_select = miscGetAutoSelect();
@@ -43,21 +46,22 @@ Pose2D_t white_autoGetStartingPose(void) {
  * Power/velocity values from here are probably okay to use.
  */
 int white_autonomous1() {
-  // driveMoveDistance(400, 40, 500);
-  // wait(1000, msec);
-  // driveMoveDistance(-400, -40, 500);
-  // wait(1000, msec);
+  
+  
+  driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
+  wait(500,msec);
+  driveProfileAngle(90, A_ANGLE, V_ANGLE, 1000);
 
-  // t_accel = max_v / max_a
-  // x_accel = 0.5 * a * t_accel^2
-  driveProfileDistance(1000, 30, 50, 1000);
+  // // t_accel = max_v / max_a
+  // // x_accel = 0.5 * a * t_accel^2
+  // driveProfileDistance(1000, 30, 50, 1000);
+  // // wait(1000, msec);
+  // driveProfileDistance(-1000, -30, -50, 1000);
   // wait(1000, msec);
-  driveProfileDistance(-1000, -30, -50, 1000);
-  wait(1000, msec);
-  driveTurnAngle(90, 40, 500);
-  wait(1000, msec);
-  driveTurnAngle(-90, -40, 500);
-  wait(1000, msec);
+  // driveTurnAngle(90, 40, 500);
+  // wait(1000, msec);
+  // driveTurnAngle(-90, -40, 500);
+  // wait(1000, msec);
 
   return 0;
 }
@@ -190,7 +194,8 @@ int white_autonomous4() {
 int white_autonomous5() {
   // Reuse Left EZ roller auto
   white_autonomous3();
-  driveTurnAngle(45, 40, 1000);
+  // driveTurnAngle(45, 40, 1000);
+  driveProfileAngle(45, A_ANGLE, V_ANGLE, 1000);
 
   // Intake stack of 3, load
   intakeDeploy(true);
@@ -219,15 +224,18 @@ int white_autonomous5() {
 
   // Reset turret, drive to discs
   turretSetAngle(0);
-  driveTurnAngle(-45, 40, 1000);
+  // driveTurnAngle(-45, 40, 1000);
+  driveProfileAngle(-45, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
   driveProfileDistance(-700, -30, -50, 1000);
   wait(500, msec);
-  driveTurnAngle(90, 40, 1000);
+  // driveTurnAngle(90, 40, 1000);
+  driveProfileAngle(90, A_ANGLE, V_ANGLE, 1000);
   wait(500, msec);
   driveProfileDistance(560, 30, 50, 1000);
   wait(500, msec);
-  driveTurnAngle(-90, 40, 1000);
+  // driveTurnAngle(-90, 40, 1000);
+  driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
 
   // Deploy intake
   intakeDeploy(true);
@@ -302,7 +310,8 @@ int white_autonomous6() {
   wait(500, msec);
 
   // Turn to discs, collect remaining discs, load
-  driveTurnAngle(-45, 40, 1000);
+  // driveTurnAngle(-45, 40, 1000);
+  driveProfileAngle(-45, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
   driveProfileDistance(1000, 30, 30, 1000);
   wait(500, msec);
@@ -328,7 +337,8 @@ int white_autonomous6() {
 
   // Reset turret, turn to discs
   turretSetAngle(0);
-  driveTurnAngle(-135, 40, 1000);
+  // driveTurnAngle(-135, 40, 1000);
+  driveProfileAngle(-135, -A_ANGLE, -V_ANGLE, 1000);
   
   // Deploy intake, collect 3 discs, load (no turret yet)
   intakeDeploy(true);
@@ -341,7 +351,8 @@ int white_autonomous6() {
   auto_timetoload = true;
 
   // Drive to roller
-  driveTurnAngle(-90, 40, 1000);
+  // driveTurnAngle(-90, 40, 1000);
+  driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
   driveProfileDistance(1100, 50, 30, 1000);
   wait(500, msec);
@@ -362,7 +373,8 @@ int white_autonomous6() {
   // Reset turret, turn to roller
   launcherSetRPM(0, 0);
   turretSetAngle(0);
-  driveTurnAngle(-90, 40, 1000);
+  // driveTurnAngle(-90, 40, 1000);
+  driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
 
   // Drive backward into roller, spin a bit
@@ -372,19 +384,23 @@ int white_autonomous6() {
   wait(300, msec);
 
   turretRollerSpinPWM(0);
-  driveMoveDistance(200, 50, 500);
+  driveMoveDistance(300, 50, 500);
 
   return 0;
 }
 
 /**
- * @brief 
+ * @brief Reserved for F-off left
  * 
  */
 int white_autonomous7() {
   return 0;
 }
 
+/**
+ * @brief Reserved for F-off right
+ * 
+ */
 int white_autonomous8() {
   return 0;
 }
