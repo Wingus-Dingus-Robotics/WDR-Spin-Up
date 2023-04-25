@@ -231,7 +231,7 @@ void controlProfile_update(TrapezoidalProfile_t *profile, double actual_position
   switch (period) {
   case ACCEL:
     profile->target_acceleration = profile->max_acceleration;
-    if (fabs(profile->max_velocity - profile->target_velocity) < profile->max_acceleration*dt) {
+    if (fabs(profile->max_velocity - profile->target_velocity) < fabs(profile->max_acceleration*dt)) {
       profile->target_velocity = profile->max_velocity;
     } else {
       profile->target_velocity += profile->max_acceleration * dt;
