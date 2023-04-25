@@ -26,6 +26,21 @@
 #define DRIVE_PROFILE_INNER_DT    0.001
 #define DRIVE_PROFILE_OUTER_DT    0.5
 
+// Profiled move PID constants (rotation)
+#define DRIVE_PROFILE_ANGLE_KF       1.0
+
+#define DRIVE_PROFILE_ANGLE_KP       1.5
+#define DRIVE_PROFILE_ANGLE_KI       0.5
+#define DRIVE_PROFILE_ANGLE_KD       0.001
+#define DRIVE_PROFILE_ANGLE_WINDUP   10.0
+#define DRIVE_PROFILE_ANGLE_SETTLING_RANGE_DEG  20.0
+
+// #define DRIVE_PROFILE_ANGLE_KP       1.0
+// #define DRIVE_PROFILE_ANGLE_KI       0.5
+// #define DRIVE_PROFILE_ANGLE_KD       0.005
+// #define DRIVE_PROFILE_ANGLE_WINDUP   10.0
+// #define DRIVE_PROFILE_ANGLE_SETTLING_RANGE_DEG  20.0
+
 // Basic move PID constants
 #define DRIVE_PID_DISTANCE_KP       0.7
 #define DRIVE_PID_DISTANCE_KI       0.1
@@ -62,7 +77,7 @@ void driveTurnAngle(double angle_deg, int32_t max_pwm, uint32_t timeout_ms);
 // void driveMoveArc(double max_power, double angle_deg, double radius_cm, int32_t timeout_ms)
 
 void driveProfileDistance(double distance_mm, double max_acceleration, double max_velocity, uint32_t timeout_ms);
-void driveProfileAngle(double angle_deg, double max_acceleration, double max_velocity, uint32_t timeout);
+void driveProfileAngle(double angle_deg, double max_acceleration, double max_velocity, uint32_t timeout_ms);
 
 // Sensor functions
 void driveResetPose(void);

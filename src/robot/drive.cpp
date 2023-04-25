@@ -473,3 +473,92 @@ void driveProfileDistance(double distance_mm, double max_acceleration, double ma
   // End
   driveSetPWM(0, 0);
 }
+
+void driveProfileAngle(double angle_deg, double max_acceleration, double max_velocity, uint32_t timeout_ms) {
+  /* Initialize */
+  TrapezoidalProfile_t profile;
+  controlProfile_init(&profile, max_acceleration, max_velocity, angle_deg);
+
+  PID_Controller_t rotation_controller;
+  controlPID_init(&rotation_controller,
+    DRIVE_PROFILE_ANGLE_KP, 
+    DRIVE_PROFILE_ANGLE_KI, 
+    DRIVE_PROFILE_ANGLE_KD, 
+    DRIVE_PROFILE_ANGLE_WINDUP, 
+    DRIVE_PROFILE_INNER_DT);
+
+  controlPID_setFeedForward(&rotation_controller,
+    DRIVE_PROFILE_ANGLE_KF);
+  
+  driveResetHeading();
+  
+  /* Follow motion profile */
+  uint8_t loop_count = 101;
+
+  // Single direction only
+  if (profile.final_position > 0)
+    controlPID_setOutputRange(&rotation_controller, 0, 127);
+  else
+    controlPID_setOutputRange(&rotation_controller, -127, 0);
+  
+  // Follow profile until settling range reached
+  while (true) {
+    double drive_heading = driveGetHeading();
+
+    // Update position target
+    if (loop_count > 100) {
+      loop_count = 1;
+      controlProfile_update(&profile, drive_heading, DRIVE_PROFILE_OUTER_DT);
+    }
+
+    vexDisplayString(5, "targets: x=%f, v=%f, a=%f", profile.target_position, profile.target_velocity, profile.target_acceleration);
+
+    // Position PID controller
+    rotation_controller.target_value = profile.target_position;
+    controlPID_calculationFeedForward(&rotation_controller, drive_heading, profile.target_velocity);
+    // controlPID_calculation(&position_controller, drive_distance);
+    driveSetPWM(rotation_controller.output_pwm, -rotation_controller.output_pwm);
+
+    // Yield (probably autonomous thread)
+    vex::wait(DRIVE_PROFILE_INNER_DT, vex::timeUnits::sec);
+    loop_count++;
+
+    // Break condition
+    if (fabs(profile.final_position - drive_heading) < DRIVE_PROFILE_ANGLE_SETTLING_RANGE_DEG) {
+      break;
+    }
+  }
+
+  /* Settling */
+  wdr_timer_t settling_timer;
+  wdrTimerInit(&settling_timer);
+  wdrTimerStart(&settling_timer);
+  vex::timer extra_timeout_timer = vex::timer();
+  extra_timeout_timer.reset();
+
+  rotation_controller.target_value = profile.final_position;
+  controlPID_setOutputRange(&rotation_controller, -127, 127);
+  while (wdrTimerGetTime(&settling_timer) < timeout_ms) {
+    double drive_heading = driveGetHeading();
+
+    // Position PID controller (no feedforward)
+    controlPID_calculation(&rotation_controller, drive_heading);
+    driveSetPWM(rotation_controller.output_pwm, -rotation_controller.output_pwm);
+
+    // Timer reset
+    if (fabs(profile.final_position - drive_heading) > DRIVE_PROFILE_ANGLE_SETTLING_RANGE_DEG) {
+      wdrTimerReset(&settling_timer);
+      wdrTimerStart(&settling_timer);
+    }
+
+    // Break out of loop if this is taking too long (10s)
+    if (extra_timeout_timer.time() > 10000) {
+      break;
+    }
+  }
+
+  /* End */
+  driveSetPWM(0, 0);
+
+  
+}
