@@ -98,9 +98,17 @@ void displayScreen_competition() {
   } else if (auto_select < 2000) {
     vexDisplayString(2, "4 Right EZ roller preload (tile top right)");
   } else if (auto_select < 2500) {
-    vexDisplayString(2, "5 Programming skills");
+    vexDisplayString(2, "5 Left safe route");
   } else if (auto_select < 3000) {
-    vexDisplayString(2, "6 autonomous 6");
+    vexDisplayString(2, "6 Right safe route");
+  } else if (auto_select < 3500) {
+    vexDisplayString(2, "7 Left F-off");
+  } else if (auto_select < 4000) {
+    vexDisplayString(2, "8 Right F-off");
+  } else if (auto_select < 4500) {
+    vexDisplayString(2, "9 ...");
+  } else if (auto_select < 5000) {
+    vexDisplayString(2, "10 ...");
   } else {
     vexDisplayString(2, "No auto selected");
   }
