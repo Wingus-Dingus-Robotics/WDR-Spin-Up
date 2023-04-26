@@ -22,7 +22,7 @@ int displayThread() {
     if ((status.lastEvent == kTouchEventPress)
     && (last_press_count) != status.pressCount) {
       page_number++;
-      if (page_number > 3)  page_number = 1;
+      if (page_number > 4)  page_number = 1;
     }
     last_press_count = status.pressCount;
 
@@ -37,6 +37,10 @@ int displayThread() {
 
       case 3:
       displayScreen_timing();
+      break;
+
+      case 4:
+      displayScreen_turret();
       break;
 
       default:
@@ -206,4 +210,23 @@ void displayScreen_timing() {
   // Display thread
 
   // Controls?
+}
+
+/**
+ * @brief Displays turret states (turret postion, launcher speeds)
+ * 
+ */
+void displayScreen_turret() {
+  vexDisplayCenteredString(0, "Turret");
+  if (miscGetJumperID()) {
+    vexDisplayString(1, "Calibration ID1: L=%d, R=%d", TURRET_LEFT_READING_ID1, TURRET_RIGHT_READING_ID1);
+  } else {
+    vexDisplayString(1, "Calibration ID0: L=%d, R=%d", TURRET_LEFT_READING_ID0, TURRET_RIGHT_READING_ID0);
+  }
+  vexDisplayString(2, "Raw potentiometer [raw]: %d", turretGetRawReading());
+  vexDisplayString(3, "Angle [deg]: %.2f", turretGetAngle());
+  
+  vexDisplayCenteredString(6, "Launcher");
+  vexDisplayString(7, "Avg RPM L: %f", launcher_avg_RPM_L);
+  vexDisplayString(8, "Avg RPM R: %f", launcher_avg_RPM_R);
 }
