@@ -9,13 +9,13 @@
 #define TURRET_LEFT_READING_ID1   2711
 #define TURRET_RIGHT_READING_ID1  1470
 
-#define TURRET_PID_KP     5.0
-#define TURRET_PID_KI     3.0
-#define TURRET_PID_WINDUP 5.0
-#define TURRET_PID_KD     0.0
+#define TURRET_PID_KP     7.0
+#define TURRET_PID_KI     0.0
+#define TURRET_PID_WINDUP 0.0
+#define TURRET_PID_KD     0.03
 #define TURRET_PID_DT     0.001
 
-#define TURRET_MAX_PWM    80
+#define TURRET_MAX_PWM    127     //80
 
 #define TURRET_SETTLING_TIME_MS         500
 #define TURRET_SETTLING_THRESHOLD_DEG   5.0
