@@ -88,7 +88,12 @@ void autoPeriodic() {
   //
 
   // Opcontrol behaviour -> auto Hack
-  intakeSpin(auto_intake_pwm);
+  if ((intakeCountDiscs() == 3) && (auto_intake_full_timer.time() > 500)) {
+    intakeSpin(0);
+    intakeDeploy(false);
+  } else {
+    intakeSpin(auto_intake_pwm);
+  }
 
   if (auto_timetoload) {
     uint8_t n_discs_to_load = intakeCountDiscs();
@@ -98,6 +103,10 @@ void autoPeriodic() {
       intakeTurretLoadSequence();
     }
     auto_timetoload = false;
+  }
+
+  if (intakeCountDiscs() < 3) {
+    auto_intake_full_timer.reset();
   }
 
   // launcherPeriodic();

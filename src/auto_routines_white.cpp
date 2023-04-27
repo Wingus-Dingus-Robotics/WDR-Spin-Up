@@ -75,9 +75,21 @@ int white_autonomous2() {
   // Lock turret in position
   turretSetAngle(turretGetAngle());
 
+  // Intake until 3 discs collected, or 10 sec
+  intakeDeploy(true);
+  wait(500, msec);
+  auto_intake_pwm = 127;
+  while (intakeCountDiscs() < 3) {
+    wait(50, msec);
+  }
+  wait(1000, msec);
+  auto_intake_pwm = 0;
+
+
   // Load
   intakeTurretLoadSequence();
-  launcherSetRPM(4200, 1500);
+  // launcherSetRPM(4200, 1500);
+  launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
   wait(2000, msec);
 
   // Shoot discs
