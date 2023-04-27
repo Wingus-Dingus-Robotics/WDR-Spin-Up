@@ -1,5 +1,6 @@
 #include "robot/turret.h"
 #include "wdr.h"
+#include "opcontrol.h"    // state_string_aimbot
 
 // Devices
 static VEX_DEVICE_GET(motor_turret, port_to_index( PORT_TURRET ));
@@ -13,6 +14,8 @@ static uint32_t solenoid_brake = port_to_index( ADIX_LOWER_TURRET_BRAKE );
 static PID_Controller_t turret_pid;
 static bool turret_is_settled = false;
 static vex::timer settling_timer = vex::timer();
+
+extern bool state_string_aimbot;
 
 void turretInit(void) {
   // Motor
@@ -62,6 +65,11 @@ void turretPeriodic() {
   } else {
     turret_is_settled = false;
     settling_timer.reset();
+  }
+
+  // Brakes off when aimbotting
+  if (state_string_aimbot || state_aimbot) {
+    turret_is_settled = false;
   }
 
   // Brakes
