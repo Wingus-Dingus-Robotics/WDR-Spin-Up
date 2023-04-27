@@ -6,7 +6,7 @@
 // static bool state_launcher_short = false;
 //TODO speed state (currently turns off when pushing low-range)
 
-bool fuck_off_aimbot = true;
+bool fuck_off_aimbot = false;
 
 V5Cmd_t LED_cmd = LED_ALIVE;
 V5Cmd_t FLASH_cmd = FLASH_STOP;
@@ -138,6 +138,7 @@ void opcontrolPeriodic() {
       if (timer_launcher_empty.time() > 500) {
         // Delay after shooting last disc before turning turret back to zero.
         state_intake_stop = false;
+        state_aimbot = false;   // Turn off aimbot after every scoring cycle
       }
     } else {
       timer_launcher_empty.reset();
@@ -257,14 +258,16 @@ void opcontrolPeriodic() {
   } else if (controllerIsBtnPressed(kControllerMaster, ButtonDown)) {
     // Toggle
     state_match_load = false;
-    if (state_aimbot) {
+    if (state_aimbot || !state_intake_stop) {
       state_aimbot = false;
       // Manual aiming (low speed, straight ahead)
       turretSetAngle(0);
       launcherSetRPM(LAUNCHER_SPEED_LOW.left_RPM, LAUNCHER_SPEED_LOW.right_RPM);
       state_timetoload = true;
     } else {
-      state_aimbot = true;
+      // Only enable aimbot when ready to shoot
+      if (state_intake_stop)
+        state_aimbot = true;
     }
   } else if (controllerGetBtnState(kControllerMaster, ButtonA)) {
     // Wall turret: Clockwise
@@ -316,6 +319,8 @@ void opcontrolPeriodic() {
     // Issue: Can't turn on aimbot when robot thinks zero discs in turret
     // Issue: Lots of turret brake application. Either stay still, or turn off.
     // TODO: implement.
+
+    // Find target angle turret needs to point to
     double goal_x = 300;
     double goal_y = 300;
     double dx = goal_x - p_global.x;
@@ -323,6 +328,19 @@ void opcontrolPeriodic() {
     double target_global_deg = -atan(dy/dx) * (180.0 / M_PI);
     double target_turret_deg = target_global_deg - (fmod(p_global.theta, 360));
 
+    // Nudge
+    if (controllerIsBtnPressed(kControllerMaster, ButtonLeft))
+      offset_aimbot -= 10;
+    if (controllerIsBtnPressed(kControllerMaster, ButtonRight))
+      offset_aimbot += 10;
+
+    target_turret_deg += offset_aimbot;
+
+    // Convert range to -180 to +180
+    if ((target_turret_deg < -180)) target_turret_deg += 360;
+    if ((target_turret_deg > 180)) target_turret_deg -= 360;
+
+    // Clip min/max angle
     if ((target_turret_deg < -100)) target_turret_deg = -100;
     if ((target_turret_deg > 100)) target_turret_deg = 100;
 
@@ -374,7 +392,7 @@ void opcontrolPeriodic() {
 
     target_turret_deg += offset_string_aimbot;
 
-    // Convert range to -180 to +180 (this is missing from disc aimbot)
+    // Convert range to -180 to +180
     if ((target_turret_deg < -180)) target_turret_deg += 360;
     if ((target_turret_deg > 180)) target_turret_deg -= 360;
 

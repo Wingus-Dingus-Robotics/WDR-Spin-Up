@@ -59,7 +59,7 @@ int32_t commsUpdate(V5Cmd_t command) {
   } else if (state_string_aimbot) {
     wdrTransmitSerialCmd(sbfSerialOut, LED_CYAN);
   } else if (state_aimbot) {
-    wdrTransmitSerialCmd(sbfSerialOut, LED_ORANGE);
+    wdrTransmitSerialCmd(sbfSerialOut, LED_BLUE);
   } else {
     wdrTransmitSerialCmd(sbfSerialOut, prev_LED);
   }
