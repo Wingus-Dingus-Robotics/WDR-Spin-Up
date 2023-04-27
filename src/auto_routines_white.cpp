@@ -11,22 +11,22 @@ Pose2D_t white_autoGetStartingPose(void) {
   uint32_t auto_select = miscGetAutoSelect();
   if (auto_select < 500) {
     // Autonomous 1
-    pose = {1800,1800,0};
+    pose = {1800,1800,0};   // Middle of field
   } else if (auto_select < 1000) {
     // Autonomous 2
-    pose = {0,0,0};
+    pose = {1800,1800,0};   // Middle of field
   } else if (auto_select < 1500) {
     // Autonomous 3
-    pose = {0,0,0};
+    pose = {1000,400,0};    // Back wall, roller front of roller, top right of tile
   } else if (auto_select < 2000) {
     // Autonomous 4
-    pose = {0,0,0};
+    pose = {3200,2200,0};   // Right wall, top left of tile, facing front wall
   } else if (auto_select < 2500) {
     // Autonomous 5
-    pose = {0,0,0};
+    pose = {1000,400,0};    // Same as auto 3
   } else if (auto_select < 3000) {
     // Autonomous 6
-    pose = {0,0,0};
+    pose = {3300,2100,0};   // Right wall, middle of tile, facing front wall
   } else if (auto_select < 3500) {
     // Autonomous 7
     pose = {0,0,0};
