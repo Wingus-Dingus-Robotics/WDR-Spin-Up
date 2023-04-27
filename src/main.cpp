@@ -56,6 +56,7 @@ int main() {
 
   // Odometry init
   bool first_comp_enable = false;
+  wait(500, msec);      // Wait for SBF comms to be established
 
   while (1) {
     wdrHighResTimerReset(&main_loop_timer);
