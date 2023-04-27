@@ -106,7 +106,7 @@ int white_autonomous2() {
 }
 
 /**
- * @brief Left: Safe roller
+ * @brief Left: EZ roller
  *
  * Start in front of roller.
  * 
@@ -152,7 +152,7 @@ int white_autonomous3() {
 }
 
 /**
- * @brief Right safe roller
+ * @brief Right EZ roller
  * 
  * @return int 
  */
