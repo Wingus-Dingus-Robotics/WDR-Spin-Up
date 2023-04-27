@@ -54,7 +54,15 @@ static V5Cmd_t competitionFlash() {
 int32_t commsUpdate(V5Cmd_t command) {
   /* Flashing lights*/
   prev_LED = competitionLED();
-  wdrTransmitSerialCmd(sbfSerialOut, prev_LED);
+  if (wdrGetCompStatus() == Disabled) {
+    wdrTransmitSerialCmd(sbfSerialOut, BLANK);
+  } else if (state_string_aimbot) {
+    wdrTransmitSerialCmd(sbfSerialOut, LED_CYAN);
+  } else if (state_aimbot) {
+    wdrTransmitSerialCmd(sbfSerialOut, LED_ORANGE);
+  } else {
+    wdrTransmitSerialCmd(sbfSerialOut, prev_LED);
+  }
   wdrTransmitSerialCmd(sbfSerialOut, competitionFlash());
 
   /* Everything else*/
