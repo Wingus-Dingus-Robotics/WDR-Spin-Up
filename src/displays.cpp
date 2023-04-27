@@ -229,4 +229,15 @@ void displayScreen_turret() {
   vexDisplayCenteredString(6, "Launcher");
   vexDisplayString(7, "Avg RPM L: %f", launcher_avg_RPM_L);
   vexDisplayString(8, "Avg RPM R: %f", launcher_avg_RPM_R);
+
+  vexDisplayString(9, "L in, target, out: %.2f, %.2f, %d",
+    speed_pid_L.current_value,
+    speed_pid_L.target_value,
+    speed_pid_L.output_pwm);
+  vexDisplayString(10, "R in, target, out: %.2f, %.2f, %d",
+    speed_pid_R.current_value,
+    speed_pid_R.target_value,
+    speed_pid_R.output_pwm);
+  vexDisplayString(11, "kP: L=%.2f, R=%.2f", speed_pid_L.kP, speed_pid_R.kP);
+  // vexDisplayString(11, "PID out L: %d", );
 }

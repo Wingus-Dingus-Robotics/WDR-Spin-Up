@@ -22,7 +22,7 @@ static int32_t left_pwm_actual = 0, right_pwm_actual = 0;
 static bool launcher_ramp_flag = true;
 
 // Speed control
-static PID_Controller_t speed_pid_L, speed_pid_R;
+PID_Controller_t speed_pid_L, speed_pid_R;
 
 // Flick sequence
 static bool launcher_flick_sequence_on = false;
@@ -58,6 +58,9 @@ void launcherInit() {
   controlPID_resetStates(&speed_pid_L);
   controlPID_resetStates(&speed_pid_R);
 
+  left_pwm_actual = 0;
+  right_pwm_actual = 0;
+
   // TODO: Reset encoder values back to zero? When does rollover occur?
 }
 
@@ -73,7 +76,7 @@ void launcherPeriodic() {
     vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_L ), 100);
   } else {
     pwm_left = speed_pid_L.output_pwm;
-    if (abs(speed_pid_L.error) < 100) {
+    if (fabs(speed_pid_L.error) < 100) {
       // Maintain speed
       vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_L ), 1000);
     } else {
@@ -87,7 +90,7 @@ void launcherPeriodic() {
     vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_R ), 100);
   } else {
     pwm_right = speed_pid_R.output_pwm;
-    if (abs(speed_pid_R.error) < 100) {
+    if (fabs(speed_pid_R.error) < 100) {
       // Maintain speed
       vexMotorCurrentLimitSet(port_to_index( PORT_LAUNCHER_R ), 1000);
     } else {
@@ -161,9 +164,9 @@ uint8_t launcherFlickCountDiscs() {
 
 void launcherSetPWM(int32_t left_pwm, int32_t right_pwm) {
   if (left_pwm > 127)       left_pwm = 127;
-  else if (left_pwm < -127) left_pwm = -127;
+  else if (left_pwm < 0) left_pwm = 0;
   if (right_pwm > 127)        right_pwm = 127;
-  else if (right_pwm < -127)  right_pwm = -127;
+  else if (right_pwm < 0)  right_pwm = 0;
 
   wdrMotorSetPwm(motor_launcher_L, left_pwm);
   wdrMotorSetPwm(motor_launcher_R, right_pwm);
@@ -175,6 +178,10 @@ void launcherSetPWM(int32_t left_pwm, int32_t right_pwm) {
 
 void launcherSetPWMRamp(int32_t left_pwm_target, int32_t right_pwm_target) {
   int32_t left_pwm, right_pwm;
+
+  // Hack to stop launcher from breaking after disconnect
+  left_pwm_actual = vexDeviceMotorPwmGet(motor_launcher_L);
+  right_pwm_actual = vexDeviceMotorPwmGet(motor_launcher_R);
 
   if (left_pwm_target > left_pwm_actual) {
     left_pwm = left_pwm_actual + LAUNCHER_RAMP_INCREMENT_PWM;
