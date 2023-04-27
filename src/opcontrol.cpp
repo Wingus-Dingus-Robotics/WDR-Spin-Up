@@ -16,8 +16,12 @@ static bool state_match_load = false;
 static bool state_intake_stop = false;    // when intake full, and when turret loaded
 static bool state_roller_prev = false;    // make sure intake is disabled when releasing roller double btn
 static bool state_timetoload = false;    // when any launcher speed is set, it's time to shoot. Make sure discs are loaded.
+
+// Turret states
 bool state_aimbot = false;   // turret tries to point towards goal, based on SBF pose data
+double offset_aimbot = 0;
 bool state_string_aimbot = false;  // turret tries to point at 45 or 225 deg, based on SBF pose data
+double offset_string_aimbot = 0;
 
 // Timers
 static vex::timer timer_intake_full = vex::timer();
@@ -42,8 +46,12 @@ void opcontrolInit() {
   state_match_load = false;
   state_intake_stop = false;
   state_roller_prev = false;
+
+  // Turret states
   state_aimbot = false;
+  offset_aimbot = 0;
   state_string_aimbot = false;
+  offset_string_aimbot = 0;
 }
 
 void opcontrolPeriodic() {
@@ -272,13 +280,13 @@ void opcontrolPeriodic() {
     state_timetoload = true;
     state_aimbot = false;
     state_match_load = false;
-  } else if (controllerIsBtnPressed(kControllerMaster, ButtonLeft) && state_intake_stop) {
+  } else if (controllerIsBtnPressed(kControllerMaster, ButtonLeft) && state_intake_stop && !state_string_aimbot && !state_aimbot) {
     // Nudge turret Left (CCW)
     // Disabled until intake is stowed
     if (turretGetTargetAngle() >= -170) {
       turretSetAngle(turretGetTargetAngle() - 10);
     }
-  } else if (controllerIsBtnPressed(kControllerMaster, ButtonRight) && state_intake_stop) {
+  } else if (controllerIsBtnPressed(kControllerMaster, ButtonRight) && state_intake_stop && !state_string_aimbot && !state_aimbot) {
     // Nudge turret right (CW)
     // Disabled until intake is stowed
     if (turretGetTargetAngle() <= 170) {
@@ -357,6 +365,14 @@ void opcontrolPeriodic() {
 
     // Find angle turret needs to point to
     double target_turret_deg = target_field_deg - (fmod(p_global.theta, 360));
+
+    // Nudge
+    if (controllerIsBtnPressed(kControllerMaster, ButtonLeft))
+      offset_string_aimbot -= 10;
+    if (controllerIsBtnPressed(kControllerMaster, ButtonRight))
+      offset_string_aimbot += 10;
+
+    target_turret_deg += offset_string_aimbot;
 
     // Convert range to -180 to +180 (this is missing from disc aimbot)
     if ((target_turret_deg < -180)) target_turret_deg += 360;
