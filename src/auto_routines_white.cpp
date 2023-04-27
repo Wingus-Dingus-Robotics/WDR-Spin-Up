@@ -26,7 +26,7 @@ Pose2D_t white_autoGetStartingPose(void) {
     pose = {1000,400,0};    // Same as auto 3
   } else if (auto_select < 3000) {
     // Autonomous 6
-    pose = {3300,2100,0};   // Right wall, middle of tile, facing front wall
+    pose = {3300,2100,270};   // Right wall, middle of tile, facing disc (theta=270)
   } else if (auto_select < 3500) {
     // Autonomous 7
     pose = {0,0,0};
