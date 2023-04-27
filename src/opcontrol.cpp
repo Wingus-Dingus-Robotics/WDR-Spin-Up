@@ -16,7 +16,8 @@ static bool state_match_load = false;
 static bool state_intake_stop = false;    // when intake full, and when turret loaded
 static bool state_roller_prev = false;    // make sure intake is disabled when releasing roller double btn
 static bool state_timetoload = false;    // when any launcher speed is set, it's time to shoot. Make sure discs are loaded.
-static bool state_aimbot = false;   // turret tries to point towards goal, based on SBF pose data
+bool state_aimbot = false;   // turret tries to point towards goal, based on SBF pose data
+bool state_string_aimbot = false;  // turret tries to point at 45 or 225 deg, based on SBF pose data
 
 // Timers
 static vex::timer timer_intake_full = vex::timer();
@@ -42,6 +43,7 @@ void opcontrolInit() {
   state_intake_stop = false;
   state_roller_prev = false;
   state_aimbot = false;
+  state_string_aimbot = false;
 }
 
 void opcontrolPeriodic() {
@@ -327,6 +329,46 @@ void opcontrolPeriodic() {
   //
   // End game string
   //
+
+  if (controllerIsBtnPressed(kControllerMaster, ButtonX) && !(controllerGetBtnState(kControllerMaster, ButtonUp))) {
+    if (state_string_aimbot) {
+      state_string_aimbot = false;
+    } else {
+      // String auto-aim toggle on
+      state_string_aimbot = true;
+
+      // Launcher/turret stuff off
+      state_aimbot = false;
+      state_match_load = false;
+    }
+  }
+
+  if (state_string_aimbot) {
+    // Find which side of field robot is on
+    double target_field_deg;
+    if (p_global.x < 1800) {
+      // Left side
+      target_field_deg = 45;
+    } else {
+      // Right side
+      target_field_deg = 225;
+      // target_field_deg = -135;
+    }
+
+    // Find angle turret needs to point to
+    double target_turret_deg = target_field_deg - (fmod(p_global.theta, 360));
+
+    // Convert range to -180 to +180 (this is missing from disc aimbot)
+    if ((target_turret_deg < -180)) target_turret_deg += 360;
+    if ((target_turret_deg > 180)) target_turret_deg -= 360;
+
+    // Clip min/max turret positions (physical limitation)
+    if ((target_turret_deg < -100)) target_turret_deg = -100;
+    if ((target_turret_deg > 100)) target_turret_deg = 100;
+
+    // Move turret
+    turretSetAngle(target_turret_deg);  // Note: Nudge should be made to still work during aimbot
+  }
 
   if (controllerGetBtnState(kControllerMaster, ButtonUp) && controllerGetBtnState(kControllerMaster, ButtonX)) {
     miscStringL(true);
