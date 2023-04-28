@@ -121,7 +121,7 @@ int white_autonomous3() {
   turretSetAngle(turretGetAngle());
 
   // Wait for other robot to shoot first
-  launcherSetRPM(4200, 1500);
+  launcherSetRPM(3700, 2450);
   wait(5000, msec);
   intakeTurretLoad(false);
   wait(500, msec);
@@ -166,7 +166,7 @@ int white_autonomous4() {
   // intakeTurretLoad(true);
 
   // Turn on launcher
-  launcherSetRPM(4400, 1500);
+  launcherSetRPM(3700, 2700);
   wait(1500, msec);
 
   // Shoot discs
@@ -221,7 +221,7 @@ int white_autonomous5() {
   wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(3200, 1700);
+  launcherSetRPM(3400, 1700);
   turretSetAngle(-80);
   wait(2000, msec);
 
@@ -263,7 +263,7 @@ int white_autonomous5() {
   wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(4400, 1500);
+  launcherSetRPM(3600, 2000);
   turretSetAngle(-50);
   wait(2000, msec);
 
@@ -293,7 +293,7 @@ int white_autonomous6() {
   turretSetAngle(turretGetAngle());
 
   // Shoot first.
-  launcherSetRPM(4400+400, 1500+400);
+  launcherSetRPM(3700, 2700);
   wait(1500, msec);
   intakeTurretLoad(false);
   wait(500, msec);
@@ -333,7 +333,7 @@ int white_autonomous6() {
   wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(3200, 1700);
+  launcherSetRPM(3400, 1700);
   turretSetAngle(90);
   wait(2000, msec);
 
@@ -370,7 +370,7 @@ int white_autonomous6() {
   wait(500, msec);
 
   // Aim turret
-  launcherSetRPM(4400, 1500);
+  launcherSetRPM(3700, 2300);
   turretSetAngle(-80);
   wait(2000, msec);
 
