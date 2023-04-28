@@ -29,23 +29,7 @@ int commsThread() {
   return 0;
 }
 
-int main() {
-  // Run robot subsystem initialization functions
-  commsInit();
-
-  thread threadComms = thread(commsThread);
-  threadComms.detach();
-
-  // Run remaining subsystem init functions
-  driveInit();
-  intakeInit();
-  launcherInit();
-  miscInit();
-  turretInit();
-
-  thread threadDisplay = thread(displayThread);
-  threadDisplay.detach();
-
+int totallyNotMainThread() {
   // Loop timing
   wdr_highres_timer_t main_loop_timer;
   uint64_t t_execution_us, t_yield_us;
@@ -121,5 +105,38 @@ int main() {
       main_execution_time_us = sum_exec / array_t_execution.size();
       main_yield_time_us = sum_yield / array_t_yield.size();
     }
+  }
+
+  return 0;
+}
+
+int main() {
+  // Run robot subsystem initialization functions
+  commsInit();
+  this_thread::sleep_for(500);
+
+  thread threadComms = thread(commsThread);
+  threadComms.detach();
+
+  // Run remaining subsystem init functions
+  driveInit();
+  this_thread::sleep_for(100);
+  intakeInit();
+  this_thread::sleep_for(100);
+  launcherInit();
+  this_thread::sleep_for(100);
+  miscInit();
+  this_thread::sleep_for(100);
+  turretInit();
+  this_thread::sleep_for(100);
+
+  thread threadDisplay = thread(displayThread);
+  threadDisplay.detach();
+
+  thread threadTotallyNotMain = thread(totallyNotMainThread);
+  threadTotallyNotMain.detach();
+
+  while (true) {
+    wait(100, msec);
   }
 }
