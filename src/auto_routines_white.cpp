@@ -221,7 +221,7 @@ int white_autonomous5() {
   wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(4400, 1500);
+  launcherSetRPM(3200, 1700);
   turretSetAngle(-80);
   wait(2000, msec);
 
@@ -239,12 +239,12 @@ int white_autonomous5() {
   // driveTurnAngle(-45, 40, 1000);
   driveProfileAngle(-45, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
-  driveProfileDistance(-700, -30, -50, 1000);
+  driveProfileDistance(-700, -30, -70, 1000);
   wait(500, msec);
   // driveTurnAngle(90, 40, 1000);
   driveProfileAngle(90, A_ANGLE, V_ANGLE, 1000);
   wait(500, msec);
-  driveProfileDistance(560, 30, 50, 1000);
+  driveProfileDistance(560, 30, 70, 1000);
   wait(500, msec);
   // driveTurnAngle(-90, 40, 1000);
   driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
@@ -255,7 +255,7 @@ int white_autonomous5() {
 
   // Intake 3 discs, load
   auto_intake_pwm = 127;
-  driveProfileDistance(600, 30, 30, 1000);
+  driveProfileDistance(600, 30, 50, 1000);
   wait(500, msec);
   auto_intake_pwm = 0;
   auto_timetoload = true;
@@ -293,7 +293,7 @@ int white_autonomous6() {
   turretSetAngle(turretGetAngle());
 
   // Shoot first.
-  launcherSetRPM(4400, 1500);
+  launcherSetRPM(4400+400, 1500+400);
   wait(1500, msec);
   intakeTurretLoad(false);
   wait(500, msec);
@@ -318,14 +318,14 @@ int white_autonomous6() {
   intakeDeploy(true);
   wait(500, msec);
   auto_intake_pwm = 127;
-  driveProfileDistance(600, 30, 30, 1000);
+  driveProfileDistance(600, 30, 50, 1000);
   wait(500, msec);
 
   // Turn to discs, collect remaining discs, load
   // driveTurnAngle(-45, 40, 1000);
   driveProfileAngle(-45, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
-  driveProfileDistance(1000, 30, 30, 1000);
+  driveProfileDistance(1000, 30, 50, 1000);
   wait(500, msec);
   auto_intake_pwm = 0;
   auto_timetoload = true;
@@ -333,7 +333,7 @@ int white_autonomous6() {
   wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(4400, 1500);
+  launcherSetRPM(3200, 1700);
   turretSetAngle(90);
   wait(2000, msec);
 
@@ -356,7 +356,7 @@ int white_autonomous6() {
   intakeDeploy(true);
   wait(500, msec);
   auto_intake_pwm = 127;
-  driveProfileDistance(1250, 30, 30, 1000);
+  driveProfileDistance(1250, 30, 50, 1000);
   wait(500, msec);
   auto_intake_pwm = 0;
   intakeDeploy(false);
@@ -366,7 +366,7 @@ int white_autonomous6() {
   // driveTurnAngle(-90, 40, 1000);
   driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
-  driveProfileDistance(1100, 50, 30, 1000);
+  driveProfileDistance(1250, 50, 70, 1000);
   wait(500, msec);
 
   // Aim turret
