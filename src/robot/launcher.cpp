@@ -6,7 +6,7 @@ double launcher_avg_RPM_L;
 double launcher_avg_RPM_R;
 
 // Launcher presets (global constants)
-launcher_speeds_t LAUNCHER_SPEED_LOW = {2500, 1700};
+launcher_speeds_t LAUNCHER_SPEED_LOW = {2550, 1700};
 launcher_speeds_t LAUNCHER_SPEED_MED = {3200, 1700};
 launcher_speeds_t LAUNCHER_SPEED_HIGH = {3500, 2000};
 launcher_speeds_t LAUNCHER_SPEED_WALL = {2700, 1700};
