@@ -80,7 +80,7 @@ extern bool auto_timetoload;
 #define PORT_SBF_RX   16  // SBF to V5 UART Rx (in), SBF power
 
 // Debug serial
-#define PORT_DEBUG    6   // Serial debug out
+#define PORT_DEBUG    5   // Serial debug out
 
 // 3-wire ports
 #define PORT_ADI          22  // V5 Brain 3-wire ADI
@@ -114,7 +114,7 @@ extern bool auto_timetoload;
 // Motors
 #define PORT_LAUNCHER_L 1
 #define PORT_LAUNCHER_R 2
-#define PORT_ROLLER     5
+#define PORT_ROLLER     6
 #define PORT_INTAKE_L   7
 #define PORT_INTAKE_R   8
 #define PORT_TURRET     9
