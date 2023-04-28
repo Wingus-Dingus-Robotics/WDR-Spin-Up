@@ -35,6 +35,8 @@ static VEX_DEVICE_GET(motor_launcher_L, port_to_index( PORT_LAUNCHER_L ) );
 static VEX_DEVICE_GET(motor_launcher_R, port_to_index( PORT_LAUNCHER_R ) );
 static VEX_DEVICE_GET(adix_upper_device, port_to_index( PORT_ADIX_UPPER ));
 static uint32_t solenoid_flick = port_to_index( ADIX_UPPER_LAUNCH_FLICK );
+static VEX_DEVICE_GET(adi_device, port_to_index( PORT_ADI ));
+static uint32_t switch_lift_piston_extended = port_to_index( ADI_LIFT_PISTON_EXTENDED );
 
 void launcherInit() {
   wdr_motor_settings_t launcher_settings = {
@@ -50,6 +52,8 @@ void launcherInit() {
 
   vexDeviceAdiPortConfigSet(adix_upper_device, solenoid_flick, kAdiPortTypeDigitalOut);
   launcherFlick(false);
+
+  vexDeviceAdiPortConfigSet(adi_device, switch_lift_piston_extended, kAdiPortTypeDigitalIn);
 
   controlPID_init(&speed_pid_L, LAUNCHER_KP, LAUNCHER_KI, LAUNCHER_KD, LAUNCHER_WINDUP, LAUNCHER_DT);
   controlPID_init(&speed_pid_R, LAUNCHER_KP, LAUNCHER_KI, LAUNCHER_KD, LAUNCHER_WINDUP, LAUNCHER_DT);
@@ -293,3 +297,6 @@ void launcherUpdateAvgSpeed() {
   launcher_avg_RPM_R = sum_R / (double)RPM_BUFFER_SIZE;
 }
 
+bool launcherIsLifterUp(void) {
+  return vexDeviceAdiValueGet(adi_device, switch_lift_piston_extended);
+}

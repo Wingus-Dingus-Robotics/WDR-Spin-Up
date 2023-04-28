@@ -53,4 +53,6 @@ void launcherUpdateAvgSpeed(void);
 
 // TODO: Controller(s) for speed and disc spin control
 
+bool launcherIsLifterUp(void);
+
 #endif // ROBOT_LAUNCHER_H

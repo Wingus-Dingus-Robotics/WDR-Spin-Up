@@ -225,6 +225,8 @@ void displayScreen_turret() {
   }
   vexDisplayString(2, "Raw potentiometer [raw]: %d", turretGetRawReading());
   vexDisplayString(3, "Angle [deg]: %.2f", turretGetAngle());
+
+  vexDisplayString(4, "Is lifter up? %d", launcherIsLifterUp());
   
   vexDisplayCenteredString(6, "Launcher");
   vexDisplayString(7, "Avg RPM L: %f", launcher_avg_RPM_L);

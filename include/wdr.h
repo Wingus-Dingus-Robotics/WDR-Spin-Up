@@ -87,9 +87,9 @@ extern bool auto_timetoload;
 #define PORT_ADIX_LOWER   10  // 3-wire expander
 #define PORT_ADIX_UPPER   3   // 3-wire expander on turret
 
-#define ADI_LIFT_PISTON 1   // ?
-#define ADI_PRESSURE    2   // Pressure sensor
-#define ADI_DISC_STAGING 3  // Line tracker
+#define ADI_LIFT_PISTON_EXTENDED  1   // Magnetic limit switch
+#define ADI_PRESSURE      2   // Pressure sensor
+#define ADI_DISC_STAGING  3  // Line tracker
 
 #define ADI_AUTO_SELECT 4   // Potentiometer
 #define ADI_TURRET_POS  5   // Potentiometer
