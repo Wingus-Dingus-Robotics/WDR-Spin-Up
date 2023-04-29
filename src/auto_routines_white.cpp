@@ -121,8 +121,8 @@ int white_autonomous3() {
   turretSetAngle(turretGetAngle());
 
   // Wait for other robot to shoot first
-  launcherSetRPM(3700, 2450);
-  wait(5000, msec);
+  launcherSetRPM(3700-400, 2450-400);
+  wait(7000, msec);
   intakeTurretLoad(false);
   wait(500, msec);
 
@@ -221,8 +221,8 @@ int white_autonomous5() {
   wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(3400, 1700);
-  turretSetAngle(-80);
+  launcherSetRPM(3400-200, 1700-200);
+  turretSetAngle(-75);
   wait(2000, msec);
 
   // Shoot discs
@@ -232,7 +232,7 @@ int white_autonomous5() {
   }
   wait(500, msec);
   launcherFlickSequence(false);
-  launcherSetRPM(0, 0);
+  // launcherSetRPM(0, 0);
 
   // Reset turret, drive to discs
   turretSetAngle(0);
@@ -244,7 +244,7 @@ int white_autonomous5() {
   // driveTurnAngle(90, 40, 1000);
   driveProfileAngle(90, A_ANGLE, V_ANGLE, 1000);
   wait(500, msec);
-  driveProfileDistance(560, 30, 70, 1000);
+  driveProfileDistance(480, 30, 70, 1000);
   wait(500, msec);
   // driveTurnAngle(-90, 40, 1000);
   driveProfileAngle(-90, -A_ANGLE, -V_ANGLE, 1000);
@@ -260,11 +260,11 @@ int white_autonomous5() {
   auto_intake_pwm = 0;
   auto_timetoload = true;
   intakeDeploy(false);
-  wait(1000, msec);
+  // wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(3600, 2000);
-  turretSetAngle(-50);
+  launcherSetRPM(3600-200, 2000-200);
+  turretSetAngle(-35);
   wait(2000, msec);
 
   // Shoot discs
@@ -293,8 +293,8 @@ int white_autonomous6() {
   turretSetAngle(turretGetAngle());
 
   // Shoot first.
-  launcherSetRPM(3700, 2700);
-  wait(1500, msec);
+  launcherSetRPM(3700-400, 2700-400);
+  wait(1000, msec);
   intakeTurretLoad(false);
   wait(500, msec);
 
@@ -306,11 +306,10 @@ int white_autonomous6() {
   }
   wait(500, msec);
   launcherFlickSequence(false);
-  // launcherSetRPM(0, 0);
 
   // Lock turret at zero
   turretSetAngle(0);
-  wait(1000, msec);
+  // wait(1000, msec);
 
   ///////////////////
 
@@ -325,19 +324,19 @@ int white_autonomous6() {
   // driveTurnAngle(-45, 40, 1000);
   driveProfileAngle(-45, -A_ANGLE, -V_ANGLE, 1000);
   wait(500, msec);
-  driveProfileDistance(1000, 30, 50, 1000);
+  driveProfileDistance(900, 30, 50, 1000);
   wait(500, msec);
   auto_intake_pwm = 0;
   auto_timetoload = true;
   intakeDeploy(false);
-  wait(1000, msec);
+  // wait(1000, msec);
 
   // Aim turret
-  launcherSetRPM(3400, 1700);
+  launcherSetRPM(3400-100, 1700-100);
   turretSetAngle(90);
   wait(2000, msec);
 
-  // Shoot discs
+  // Shoot discs (2nd)
   while (launcherFlickCountDiscs() > 0) {
     launcherFlickSequence(true);
     wait(500, msec);
@@ -356,7 +355,7 @@ int white_autonomous6() {
   intakeDeploy(true);
   wait(500, msec);
   auto_intake_pwm = 127;
-  driveProfileDistance(1250, 30, 50, 1000);
+  driveProfileDistance(1200, 30, 50, 1000);
   wait(500, msec);
   auto_intake_pwm = 0;
   intakeDeploy(false);
@@ -370,8 +369,8 @@ int white_autonomous6() {
   wait(500, msec);
 
   // Aim turret
-  launcherSetRPM(3700, 2300);
-  turretSetAngle(-80);
+  launcherSetRPM(3700-300, 2300-300);
+  turretSetAngle(-85);
   wait(2000, msec);
 
   // Shoot 3 discs
@@ -396,7 +395,7 @@ int white_autonomous6() {
   wait(300, msec);
 
   turretRollerSpinPWM(0);
-  driveMoveDistance(300, 50, 500);
+  driveMoveDistance(150, 50, 500);
 
   return 0;
 }
